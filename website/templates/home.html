@@ -1,0 +1,17 @@
+{% extends "blueprint.html" %}
+
+{%block title%}Home Page{%endblock%}
+
+{%block cssimports%}
+<link rel="stylesheet" href="{{ url_for('static', filename='homestyles.css') }}">
+{%endblock%}
+
+{%block content%}
+
+<form method = "POST">
+    <div class = "formGroup">
+        <label for="ytplaylist">Enter YouTube Playlist Link Here</label>
+        <input class="form-control" name="ytlink">
+    </div>
+</form>
+{%endblock%}

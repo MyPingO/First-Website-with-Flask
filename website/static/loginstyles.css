@@ -1,0 +1,11 @@
+.emailPasswordInput{
+    margin-top: 1%;
+    padding-left: 1%;
+    display: flex;
+}
+.formGroup{
+    padding-right: 1%;
+}
+.submitButton{
+    margin-top: 31px;
+}

@@ -1,0 +1,11 @@
+.emailPasswordInput {
+    margin-top: 1vh;
+    padding-left: 33vw;
+    padding-right: 33vw;
+}
+.submitButton {
+    text-align: center;
+}
+.signUpText {
+    text-align: center;
+}

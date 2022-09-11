@@ -1,0 +1,32 @@
+{% extends "blueprint.html" %}
+{%block title%}Login Page{%endblock%}
+
+{%block cssimports%}
+<link rel="stylesheet" href="{{ url_for('static', filename='loginstyles.css') }}">
+{%endblock%}
+
+{%block content%}
+<!--Form from Bootstrap-->
+<form class="emailPasswordInput" method="POST">
+
+    <div class="formGroup">
+      <label for="exampleInputEmail1">Email address</label>
+      <input type="email" class="form-control" name = "email" id="email" aria-describedby="emailHelp"
+        placeholder="Enter email">
+      <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+
+    </div>
+    
+    <div class="formGroup">
+        <label for="exampleInputPassword1">Password</label>
+        <input type="password" class="form-control" name = "password" id="password" placeholder="Password">
+    </div>
+    
+    <div class="submitButton">
+        <button type="submit" class="btn btn-primary">Login</button>
+    </div>
+
+  
+</form>
+<!--End of Form from Bootstrap-->
+{%endblock%}

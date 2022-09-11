@@ -1,0 +1,52 @@
+{% extends "blueprint.html"%}
+{%block title%}Sign Up{%endblock%}
+
+{%block cssimports%}
+<link rel="stylesheet" href="{{ url_for('static', filename='signupstyles.css') }}">
+{%endblock%}
+
+{%block content%}
+<!--Form from Bootstrap-->
+<form class="emailPasswordInput" method="POST">
+    
+    <div class = "signUpText">
+        <h1 for="signup">Sign Up</h1>
+    </div>
+
+    <div class="formGroup">
+        <div class = "emailText">
+            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+        </div>
+      <input type="email" class="form-control" name = "email" id="email" aria-describedby="emailHelp"
+        placeholder="Enter email">
+    </div>
+
+    <br>
+
+    <div class="formGroup">
+        <input type="text" class="form-control" name = "username" id="username" placeholder="Username">
+    </div>
+
+    <br>
+
+    <div class="formGroup">
+        <input type="password" class="form-control" name = "password" id="password" placeholder="Password">
+    </div>
+
+    <br>
+
+    <div class="formGroup">
+        <input type="password" class="form-control" name = "confirm-password" id="confirm-password"  placeholder="Repeat Password">
+    </div>
+
+    <br>
+
+    <div class="submitButton">
+        <button type="submit" class="btn btn-primary">Sign Up</button>
+    </div>
+
+
+  
+</form>
+<!--End of Form from Bootstrap-->
+{%endblock%}
