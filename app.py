@@ -1,41 +1,45 @@
-from asyncio.windows_events import NULL
+from pathlib import Path
 from flask import render_template, request, flash, redirect, url_for
-from website import create_app
+from flask_login import login_user, logout_user, login_required, current_user
+from website import create_app, mp3_downloader
 from website import db
-from website.database import Teacher, Classroom, Student, Test
+from website.database import User, YoutubeLinks
 from werkzeug.security import generate_password_hash, check_password_hash
-
-# import traceback
-# import re
-# from pytube import Playlist
-# import youtube_dl
 
 app = create_app()
 
 @app.route('/', methods = ['GET', 'POST'])
+@login_required
 def home():
     data = request.form
     print(data)
     if request.method == 'POST':
-        pass
-    return render_template('home.html')
+        url = data["url"]
+        return mp3_downloader.downloader(url, 'website/mp3')
+    return render_template('home.html', user = current_user)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         print(request.form)
-        teacher = Teacher.query.filter_by(email=request.form["email"]).first()
-        if teacher:
-            if check_password_hash(teacher.password, request.form["password"]):
-                flash(f"Logged in successfully! Welcome back {teacher.username}.", category="success")
+        user = User.query.filter_by(email=request.form["email"]).first()
+        if user:
+            if check_password_hash(user.password, request.form["password"]):
+                flash(f"Logged in successfully! Welcome back, {user.username}.", category="success")
+                login_user(user, remember=True)
                 return redirect(url_for("home"))
             else:
                 flash("Incorrect password.", category="error")
         else:
             flash("Email does not exist.", category="error")
 
-    return render_template("login.html")
+    return render_template("login.html", user = current_user)
 
+@app.route("/logout", methods=["GET", "POST"])
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("login"))
 
 def check_sign_up_details(email, username, password, confirm_password) -> bool:
     if email and username and password and confirm_password:
@@ -64,10 +68,10 @@ def check_sign_up_details(email, username, password, confirm_password) -> bool:
                 if password != confirm_password:
                     flash("Passwords don't match.", category="error")
                     valid_details = False
-                if Teacher.query.filter_by(email=email).first() != None:
+                if User.query.filter_by(email=email).first() != None:
                     flash("Email already exists.", category="error")
                     valid_details = False
-                if Teacher.query.filter_by(username=username).first() != None:
+                if User.query.filter_by(username=username).first() != None:
                     flash("Username already exists.", category="error")
                     valid_details = False
                 return valid_details
@@ -89,12 +93,14 @@ def sign_up():
         valid_sign_up_details = check_sign_up_details(email, username, password, confirm_password)
 
         if valid_sign_up_details:
-            new_teacher = Teacher(email=email, username=username, password=generate_password_hash(password, method="sha256"))
-            db.session.add(new_teacher)
+            new_user = User(email=email, username=username, password=generate_password_hash(password, method="sha256"))
+            db.session.add(new_user)
             db.session.commit()
+            login_user(new_user, remember=True)
             flash(f"Account created! Welcome, {username}.", category="success")
 
-    return redirect(url_for('home')) if valid_sign_up_details else render_template("sign-up.html")
+    return redirect(url_for('home')) if valid_sign_up_details else render_template("sign-up.html", user = current_user)
+
 
 if __name__ == '__main__':
-    app.run(debug=True, port = 25565)
+    app.run(debug=True, host='0.0.0.0', port = 25565)
