@@ -15,7 +15,8 @@ def home():
     print(data)
     if request.method == 'POST':
         url = data["url"]
-        return mp3_downloader.downloader(url, 'website/mp3')
+        check = mp3_downloader.downloader(url, 'website/mp3')
+        return redirect(url_for('home')) if check == False else check
     return render_template('home.html', user = current_user)
 
 @app.route("/login", methods=["GET", "POST"])

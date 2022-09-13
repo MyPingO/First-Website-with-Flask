@@ -8,10 +8,17 @@
 
 {%block content%}
 
-<form method = "POST">
-    <div class = "formGroup">
-        <label for="ytplaylist">Enter YouTube Playlist Link Here</label>
-        <input class="form-control" name="url">
+<form method="POST">
+    <div class="formGroup">
+        <label for="ytplaylist">
+            <h3>Enter YouTube Playlist Link Here</h3>
+        </label>
+        <div class="inputs">
+            <div class="formInput textInput">
+                <input type="text" class="form-control" name="url">
+            </div>
+            <button class = "btn btn-primary searchButton" type="Submit">Search</button>
+        </div>
     </div>
 </form>
 {%endblock%}
