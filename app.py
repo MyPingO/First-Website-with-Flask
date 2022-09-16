@@ -2,8 +2,7 @@ from pathlib import Path
 from flask import render_template, request, flash, redirect, url_for
 from flask_login import login_user, logout_user, login_required, current_user
 from website import create_app, mp3_downloader
-from website import db
-from website.database import User, YoutubeLinks
+from website.database import User, YoutubeLinks, db
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = create_app()
@@ -15,7 +14,7 @@ def home():
     print(data)
     if request.method == 'POST':
         url = data["url"]
-        check = mp3_downloader.downloader(url, 'website/mp3')
+        check = mp3_downloader.downloader(url, current_user)
         return redirect(url_for('home')) if check == False else check
     return render_template('home.html', user = current_user)
 

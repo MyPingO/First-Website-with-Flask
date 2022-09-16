@@ -1,5 +1,7 @@
+from datetime import datetime
 from io import BytesIO
 import traceback
+from turtle import title
 import youtube_dl
 import re
 import os
@@ -7,8 +9,9 @@ from pytube import Playlist, YouTube
 from flask import send_file, flash
 import zipfile
 from zipfile import ZipFile
+from website.database import User, YoutubeLinks, db
 
-def downloader(url: str, downloads_path: str):
+def downloader(url: str, user: User):
     if "/playlist?list=" in url:
         # while True:
         #     playlist = Playlist(url)
@@ -48,8 +51,8 @@ def downloader(url: str, downloads_path: str):
                 try_counter = 0
                 while True:
                     if try_counter == 3:
-                        flash("Error: This url cannot be found, please try again!", category="error")
-                        return False
+                        flash(f"Error: This url cannot be found, please try again! URL = {video_url}", category="error")
+                        break
                     try:
                         try_counter += 1
                         print(f"Getting video information for {video_url}")
@@ -58,9 +61,13 @@ def downloader(url: str, downloads_path: str):
                         video.streams.get_audio_only().stream_to_buffer(audio_data)
                         audio_data.seek(0)
                         zip.writestr(zinfo_or_arcname=f"{video.title}.mp3", data=audio_data.read(), compress_type=zipfile.ZIP_DEFLATED)
+                        new_link = YoutubeLinks(link=video_url, user_id=user.id, title=video.title, date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"))
+                        db.session.add(new_link)
+                        db.session.commit()
                         break
                     except Exception as e:
                         print(e)
+                        db.session.rollback()
                         traceback.print_exc()
             print("Done downloading mp3 files") 
         zip_bytes.seek(0)
@@ -71,7 +78,7 @@ def downloader(url: str, downloads_path: str):
         while True:
             #sometimes theres some error that doesn't allow a video to be downloaded properly, happens rarely so I let it try 3 times before asking for another link
             if try_counter == 3:
-                flash("Error: This url cannot be found, please try again!", category="error")
+                flash("Something went wrong, please try again!", category="error")
                 return False
             try:
                 try_counter += 1
@@ -80,9 +87,12 @@ def downloader(url: str, downloads_path: str):
                 video = YouTube(url)
                 video.streams.get_audio_only().stream_to_buffer(audio_data)
                 audio_data.seek(0)
+                new_link = YoutubeLinks(link=url, user_id=user.id, title=video.title, date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"))
+                db.session.add(new_link)
+                db.session.commit()
                 print("Download is complete!")
                 return send_file(audio_data, as_attachment=True, download_name=f"{video.title}.mp3")
-            except:
-                if try_counter == 3:
-                    continue
+            except Exception as e:
+                print(e)
+                db.session.rollback()
                 print("Something went wrong, trying again.")

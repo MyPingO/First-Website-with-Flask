@@ -21,4 +21,15 @@
         </div>
     </div>
 </form>
+
+<ul class = "list-group"> <h4>Previous Searches</h4>
+    {% for youtube_link in user.links|reverse %}
+    <li class = "list-group-item">
+        {{youtube_link.title}} <br>
+        <a href="{{ youtube_link.link}}" target="_blank">{{ youtube_link.link }}</a> <br>
+        Date: {{youtube_link.date_added}} <br>
+    </li>
+    {% endfor %}
+</ul>
+
 {%endblock%}
