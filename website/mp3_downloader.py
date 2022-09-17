@@ -12,6 +12,9 @@ from zipfile import ZipFile
 from website.database import User, YoutubeLinks, db
 
 def downloader(url: str, user: User):
+    if not url:
+        flash("Please enter a link to a youtube video or Playlist.", category="error")
+        return False
     if "/playlist?list=" in url:
         # while True:
         #     playlist = Playlist(url)
@@ -55,9 +58,9 @@ def downloader(url: str, user: User):
                         break
                     try:
                         try_counter += 1
-                        print(f"Getting video information for {video_url}")
                         audio_data = BytesIO()
                         video = YouTube(video_url)
+                        print(f"Getting video information for {video.title}")
                         video.streams.get_audio_only().stream_to_buffer(audio_data)
                         audio_data.seek(0)
                         zip.writestr(zinfo_or_arcname=f"{video.title}.mp3", data=audio_data.read(), compress_type=zipfile.ZIP_DEFLATED)

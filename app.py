@@ -13,7 +13,7 @@ def home():
     data = request.form
     print(data)
     if request.method == 'POST':
-        url = data["url"]
+        url = data.get('url')
         check = mp3_downloader.downloader(url, current_user)
         return redirect(url_for('home')) if check == False else check
     return render_template('home.html', user = current_user)
