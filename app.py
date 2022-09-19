@@ -1,4 +1,5 @@
 from pathlib import Path
+from turtle import end_fill
 from flask import render_template, request, flash, redirect, url_for
 from flask_login import login_user, logout_user, login_required, current_user
 from website import create_app, mp3_downloader
@@ -12,10 +13,12 @@ app = create_app()
 def home():
     data = request.form
     print(data)
-    if request.method == 'POST':
+    if request.method == 'POST': 
+        start_video = data.get('start_video')
+        end_video = data.get('end_video')
         url = data.get('url')
-        check = mp3_downloader.downloader(url, current_user)
-        return redirect(url_for('home')) if check == False else check
+        check = mp3_downloader.downloader(url = url, user = current_user, start_video = start_video, end_video = end_video)
+        return check or redirect(url_for('home'))
     return render_template('home.html', user = current_user)
 
 @app.route("/login", methods=["GET", "POST"])

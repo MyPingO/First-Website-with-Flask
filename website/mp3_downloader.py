@@ -1,9 +1,10 @@
 from datetime import datetime
 from io import BytesIO
 import traceback
-from turtle import title
+from typing import Optional
 import youtube_dl
 import re
+from re import fullmatch
 import os
 from pytube import Playlist, YouTube
 from flask import send_file, flash
@@ -11,50 +12,68 @@ import zipfile
 from zipfile import ZipFile
 from website.database import User, YoutubeLinks, db
 
-def downloader(url: str, user: User):
+def downloader(url: str, user: User, start_video: str, end_video: str):
     if not url:
         flash("Please enter a link to a youtube video or Playlist.", category="error")
-        return False
+        return None
+    pattern = r"(https:\/\/www\.youtube\.com\/watch\?v=[A-Za-z0-9-_]{11}).*"
     if "/playlist?list=" in url:
-        # while True:
-        #     playlist = Playlist(url)
-        #     if len(playlist.video_urls) == 0:
-        #         print("\n--------------------------------------------------------------------------------------------------\n| There was an error, please make sure you entered a valid link to a playlist that is not empty. | \n--------------------------------------------------------------------------------------------------\n")
-        #         url = input("Enter the youtube link you want to download: ")
-        #         downloader(url)
-        #     else:
-        #         break          
-        # while True:
-        #     yes_no = input("This is a playlist! Would you like to specify a custom download range? Yes/No\n")
-        #     if yes_no.casefold() != "no" and yes_no.casefold() != "yes":
-        #         print("\n----------------------------------------------\n| Error: Invalid response, please try again! | \n----------------------------------------------\n")
-        #         continue
-        #     break
-        # if yes_no.casefold() == "yes":
-        #     pattern = r"(https:\/\/www\.youtube\.com\/watch\?v=[A-Za-z0-9-_]{11}).*"
-        #     while True:
-        #         try:
-        #             first_video = re.fullmatch(pattern,input("Enter the url of the song in the playlist you want to start downloading from: ")).group(1)
-        #             playlist_min_range = playlist.index(first_video)
-        #             break
-        #         except:
-        #             print("\n------------------------------------------------------------------------\n| This url cannot be found in the playlist you gave, please try again! |\n------------------------------------------------------------------------\n")
-        #     while True:
-        #         try:
-        #             last_video = re.fullmatch(pattern,input("Enter the url of the song in the playlist you want to download to: ")).group(1)
-        #             playlist_max_range = playlist.index(last_video) + 1
-        #             break
-        #         except:
-        #             print("\n------------------------------------------------------------------------\n| This url cannot be found in the playlist you gave, please try again! |\n------------------------------------------------------------------------\n")
-        #     playlist = playlist[playlist_min_range: playlist_max_range]
         playlist = Playlist(url)
+        try:
+            title = playlist.title #tests to see if the playlist has a title
+        except KeyError as ke:
+            flash("Cannot download playlist. Reason: Invalid playlist link.", category="error")
+            return None
+        except Exception as e:
+            flash ("Cannot download playlist. Reason: Unknown error.", category="error")
+            print(type(e))
+            return None
+        if len(playlist.video_urls) == 0:
+            flash("Cannot download playlist. Reason: Playlist is empty.", category="error")
+            return None
+        playlist_min_range = 0
+        playlist_max_range = len(playlist.video_urls)
+        if start_video:
+            if fullmatch(pattern=pattern, string=start_video):
+                try:
+                    playlist_min_range = playlist.index(start_video)
+                except ValueError as ve:
+                    flash("Cannot download playlist. Reason: Start video link is not in playlist.", category="error")
+                    print(ve)
+                    return None
+                except Exception as e:
+                    flash("Cannot download playlist. Reason: Unknown error.", category="error")
+                    print(type(e))
+                    return None
+            else:
+                flash("Cannot download playlist. Reason: Start video link is not a valid youtube link.", category="error")
+                return None
+        if end_video:
+            if fullmatch(pattern=pattern, string=end_video):
+                try:
+                    playlist_max_range = playlist.index(end_video) + 1
+                except ValueError as ve:
+                    flash("Cannot download playlist. Reason: End video link is not in playlist.", category="error")
+                    print(ve)
+                    return None
+                except Exception as e:
+                    flash("Cannot download playlist. Reason: Unknown error.", category="error")
+                    print(type(e))
+                    return None
+            else:
+                flash("Cannot download playlist. Reason: End video link is not a valid youtube link.", category="error")
+                return None
+        if playlist_min_range > playlist_max_range:
+            flash("Cannot download playlist. Reason: Start video is after End video.", category="error")
+            return None
+        playlist = playlist[playlist_min_range: playlist_max_range]
         zip_bytes = BytesIO()
         with ZipFile(zip_bytes, "w") as zip:
             for video_url in playlist:
                 try_counter = 0
                 while True:
                     if try_counter == 3:
-                        flash(f"Error: This url cannot be found, please try again! URL = {video_url}", category="error")
+                        flash(f"Error: Something went wrong. URL = {video_url}", category="error")
                         break
                     try:
                         try_counter += 1
@@ -74,7 +93,7 @@ def downloader(url: str, user: User):
                         traceback.print_exc()
             print("Done downloading mp3 files") 
         zip_bytes.seek(0)
-        return send_file(zip_bytes, download_name=f"playlist{playlist.playlist_id}.zip", as_attachment=True)
+        return send_file(zip_bytes, download_name=f"{title}.zip", as_attachment=True)
     else:
         print("Downloading URL")
         try_counter = 0
@@ -82,7 +101,7 @@ def downloader(url: str, user: User):
             #sometimes theres some error that doesn't allow a video to be downloaded properly, happens rarely so I let it try 3 times before asking for another link
             if try_counter == 3:
                 flash("Something went wrong, please try again!", category="error")
-                return False
+                return None
             try:
                 try_counter += 1
                 print("Getting video information...")

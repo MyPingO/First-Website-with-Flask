@@ -20,30 +20,55 @@
             <button class="btn btn-primary searchButton" type="submit">Search</button>
         </div>
     </div>
+    <div style="display:flex;">
+        <div class = "searchList" style="padding-left:0.5vw;">
+            <form method="POST" style="padding-left: 10px; padding-top: 20px;">
+                <ul class="list-group" style="width: fit-content; padding-right: 1vw;">
+                    <label for="PreviousDownloads" style="text-align: center;">
+                        <h4>Previous Searches</h4>
+                    </label>
+                    {% for youtube_link in user.links|reverse %}
+                    <li class="list-group-item">
+                        <div>
+                            <strong>{{youtube_link.title}}</strong> <br>
+                            <a href="{{ youtube_link.link }}" target="_blank">
+                                {{ youtube_link.link }}
+                            </a>
+                            <div style="padding-top: 5px;">
+                                Date: {{youtube_link.date_added}}
+                                <button type="submit" value=" {{youtube_link.link}} " title="TESTING" name="url"
+                                    id="redownload"
+                                    style="width:5  vw;; font-size: 13px; text-align: center; padding: 0px 3px 0px 3px; border-width: 1px;">
+                                    Download Again!
+                                </button>
+                                <br>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </form>
+        </div>
+        <div class="rangeSettings" style="padding-top: 20px; padding-right: 25px; text-align: center;">
+            <label for="Ranges" style="padding-left: 20px;">
+                <h4>Specify Range (Inclusive)</h4>
+            </label>
+            <ul class = "rangeSettings" style="list-style:none; width: fit-content; display: flex; flex-wrap: wrap;">
+                <li class="rangeListItem" style="width: 21vw;">
+                    <div style="white-space: nowrap;">Start from:</div>
+                    <input class="form-control" type="text" name="start_video"
+                        placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center;">
+                </li>
+                <br>
+                <li class="rangeListItem" style="width: 21vw;">
+                    <div style="white-space: nowrap;">End at:</div>
+                    <input class="form-control" type="text" name="end_video"
+                        placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center;">
+                </li>
+            </ul>
+        </div>
+    </div>
 </form>
 
-<form method="POST" style="padding-left: 10px; padding-top: 20px;">
-    <ul class="list-group" style="width: fit-content; padding-right: 1vw;">
-        <label for="PreviousDownloads" style="text-align: center;"><h4>Previous Searches</h4></label>
-        {% for youtube_link in user.links|reverse %}
-        <li class="list-group-item">
-            <div>
-                <strong>{{youtube_link.title}}</strong> <br>
-                <a href="{{ youtube_link.link }}" target="_blank">
-                    {{ youtube_link.link }}
-                </a>
-                <div style="padding-top: 5px;">
-                    Date: {{youtube_link.date_added}}
-                    <button type="submit" value=" {{youtube_link.link}} " title="TESTING" name="url" id="redownload"
-                        style="width:5  vw;; font-size: 13px; text-align: center; padding: 0px 3px 0px 3px; border-width: 1px;">
-                        Download Again!
-                    </button>
-                    <br>
-                </div>
-            </div>
-        </li>
-        {% endfor %}
-    </ul>
-</form>
 
 {%endblock%}
