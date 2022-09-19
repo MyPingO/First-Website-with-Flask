@@ -21,9 +21,10 @@
         </div>
     </div>
     <div style="display:flex;">
-        <div class = "searchList" style="padding-left:0.5vw;">
+        {% if user.links %}
+        <div class="searchList" style="padding-left:0.5vw;">
             <form method="POST" style="padding-left: 10px; padding-top: 20px;">
-                <ul class="list-group" style="width: fit-content; padding-right: 1vw;">
+                <ul class="list-group" style="width: 50vw; min-width: fit-content; padding-right: 1vw;">
                     <label for="PreviousDownloads" style="text-align: center;">
                         <h4>Previous Searches</h4>
                     </label>
@@ -49,11 +50,13 @@
                 </ul>
             </form>
         </div>
-        <div class="rangeSettings" style="padding-top: 20px; padding-right: 25px; text-align: center;">
+        {% endif %}
+        {%if not user.links%}
+        <div class="rangeSettings" style="padding-left: 28vw; padding-top: 20px; padding-right: 25px; text-align: center;">
             <label for="Ranges" style="padding-left: 20px;">
                 <h4>Specify Range (Inclusive)</h4>
             </label>
-            <ul class = "rangeSettings" style="list-style:none; width: fit-content; display: flex; flex-wrap: wrap;">
+            <ul class="rangeSettings" style="list-style:none; width: fit-content; display: flex; flex-wrap: wrap;">
                 <li class="rangeListItem" style="width: 21vw;">
                     <div style="white-space: nowrap;">Start from:</div>
                     <input class="form-control" type="text" name="start_video"
@@ -67,6 +70,26 @@
                 </li>
             </ul>
         </div>
+        {%else%}
+        <div class="rangeSettings" style="padding-top: 20px; padding-right: 25px; text-align: center;">
+            <label for="Ranges" style="padding-left: 20px;">
+                <h4>Specify Range (Inclusive)</h4>
+            </label>
+            <ul class="rangeSettings" style="list-style:none; width: fit-content; display: flex; flex-wrap: wrap;">
+                <li class="rangeListItem" style="width: 21vw;">
+                    <div style="white-space: nowrap;">Start from:</div>
+                    <input class="form-control" type="text" name="start_video"
+                        placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center;">
+                </li>
+                <br>
+                <li class="rangeListItem" style="width: 21vw;">
+                    <div style="white-space: nowrap;">End at:</div>
+                    <input class="form-control" type="text" name="end_video"
+                        placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center;">
+                </li>
+            </ul>
+        </div>
+        {%endif%}
     </div>
 </form>
 
