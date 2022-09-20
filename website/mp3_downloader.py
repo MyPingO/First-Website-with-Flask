@@ -68,6 +68,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str):
             return None
         playlist = playlist[playlist_min_range: playlist_max_range]
         zip_bytes = BytesIO()
+        new_links: list[YoutubeLinks] = []
         with ZipFile(zip_bytes, "w") as zip:
             for video_url in playlist:
                 try_counter = 0
@@ -83,9 +84,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str):
                         video.streams.get_audio_only().stream_to_buffer(audio_data)
                         audio_data.seek(0)
                         zip.writestr(zinfo_or_arcname=f"{video.title}.mp3", data=audio_data.read(), compress_type=zipfile.ZIP_DEFLATED)
-                        new_link = YoutubeLinks(link=video_url, user_id=user.id, title=video.title, date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"))
-                        db.session.add(new_link)
-                        db.session.commit()
+                        new_links.append(YoutubeLinks(link=video_url, user_id=user.id, title=video.title, date_added=datetime.now().strftime("%b %d %Y %#I:%M %p")))
                         break
                     except Exception as e:
                         print(e)
@@ -93,8 +92,20 @@ def downloader(url: str, user: User, start_video: str, end_video: str):
                         traceback.print_exc()
             print("Done downloading mp3 files") 
         zip_bytes.seek(0)
+        try:
+            for link in new_links:
+                db.session.add(link)
+            db.session.commit()
+        except Exception as e:
+            print(e)
+            db.session.rollback()
+            traceback.print_exc()
         return send_file(zip_bytes, download_name=f"{title}.zip", as_attachment=True)
     else:
+        #zip.open(zip.filelist[0], "w")
+        if not fullmatch(pattern=pattern, string=url):
+            flash("Cannot download video. Reason: Invalid youtube link.", category="error")
+            return None
         print("Downloading URL")
         try_counter = 0
         while True:

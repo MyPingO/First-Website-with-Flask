@@ -4,11 +4,12 @@
 }
 .inputs {
     display: flex;
+    justify-content: center;
 }
 .textInput {
-    width: 66.66vw;
-    padding-left: 33.33vw;
-    padding-right: 1%;
+    min-width: 250px;
+    width: 33vw;
+    padding-right: 1vw;
 }
 .rangeListItem {
     margin-right: 1vw;

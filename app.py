@@ -35,7 +35,6 @@ def login():
                 flash("Incorrect password.", category="error")
         else:
             flash("Email does not exist.", category="error")
-
     return render_template("login.html", user = current_user)
 
 @app.route("/logout", methods=["GET", "POST"])
