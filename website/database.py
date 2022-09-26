@@ -7,6 +7,7 @@ class YoutubeLinks(db.Model):
     link = db.Column(db.String(300), nullable=False)
     title = db.Column(db.String(100), nullable=False)
     date_added = db.Column(db.String(100), nullable=False)
+    thumbnail_link = db.Column(db.String(2000), nullable=True)
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)

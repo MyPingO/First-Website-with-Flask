@@ -28,8 +28,10 @@
                 <h4>Specify Range (Inclusive)</h4>
             </label>
         </div>
-        <ul class="rangeSettings" style="list-style:none; display: flex; flex-wrap: wrap; justify-content: center; padding-right: 20px">
-            <li class="rangeListItem" style="min-width: 300px; width: 23vw; max-width: 25vw;"> <!--TODO: change mind width according to screensize of mobile device-->
+        <ul class="rangeSettings"
+            style="list-style:none; display: flex; flex-wrap: wrap; justify-content: center; padding-right: 20px">
+            <li class="rangeListItem" style="min-width: 300px; width: 23vw; max-width: 25vw;">
+                <!--TODO: change mind width according to screensize of mobile device-->
                 <div style="white-space: nowrap; text-align: center;">Start from:</div>
                 <input class="form-control" type="text" name="start_video"
                     placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center;">
@@ -45,7 +47,7 @@
 {% if user.links %}
 <div class="previousSearchList" style="padding-left:1vw; padding-top: 20px;">
     <form method="POST">
-        <div class = "searchListDiv" style="display: flex; justify-content: center;">
+        <div class="searchListDiv" style="display: flex; justify-content: center;">
             <ul class="list-group searchList" style="max-width: fit-content; padding-right: 1vw;">
                 <label for="PreviousDownloads" style="text-align: center;">
                     <h4>Previous Searches</h4>
@@ -59,12 +61,19 @@
                         </a>
                         <div style="padding-top: 5px;">
                             Date: {{youtube_link.date_added}}
-                            <button type="submit" value="{{youtube_link.link}}" title="{Download Again!}" name="url" id="redownload"
+                            <button type="submit" value="{{youtube_link.link}}" title="{Download Again!}" name="url"
+                                id="redownload"
                                 style="font-size: 13px; text-align: center; padding: 0px 3px 0px 3px; border-width: 1px;">
                                 Download Again!
                             </button>
                             <br>
                         </div>
+                        {% if youtube_link.thumbnail_link %}
+                        <a href="{{ youtube_link.thumbnail_link }}" target="_blank">
+                            <img class="thumbnail" src="{{ youtube_link.thumbnail_link }}" alt="Video Thumbnail"
+                                style="width: 300px; height: 200px; margin-top: 10px;">
+                        </a>
+                        {% endif %}
                     </div>
                 </li>
                 {% endfor %}

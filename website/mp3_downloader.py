@@ -84,11 +84,10 @@ def downloader(url: str, user: User, start_video: str, end_video: str):
                         video.streams.get_audio_only().stream_to_buffer(audio_data)
                         audio_data.seek(0)
                         zip.writestr(zinfo_or_arcname=f"{video.title}.mp3", data=audio_data.read(), compress_type=zipfile.ZIP_DEFLATED)
-                        new_links.append(YoutubeLinks(link=video_url, user_id=user.id, title=video.title, date_added=datetime.now().strftime("%b %d %Y %#I:%M %p")))
+                        new_links.append(YoutubeLinks(link=video_url, user_id=user.id, title=video.title, date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"), thumbnail_link=video.thumbnail_url))
                         break
                     except Exception as e:
                         print(e)
-                        db.session.rollback()
                         traceback.print_exc()
             print("Done downloading mp3 files") 
         zip_bytes.seek(0)
@@ -102,7 +101,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str):
             traceback.print_exc()
         return send_file(zip_bytes, download_name=f"{title}.zip", as_attachment=True)
     else:
-        #zip.open(zip.filelist[0], "w")
+        #TODO zip.open(zip.filelist[0], "w")
         if not fullmatch(pattern=pattern, string=url):
             flash("Cannot download video. Reason: Invalid youtube link.", category="error")
             return None
@@ -120,7 +119,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str):
                 video = YouTube(url)
                 video.streams.get_audio_only().stream_to_buffer(audio_data)
                 audio_data.seek(0)
-                new_link = YoutubeLinks(link=url, user_id=user.id, title=video.title, date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"))
+                new_link = YoutubeLinks(link=url, user_id=user.id, title=video.title, date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"), thumbnail_link=video.thumbnail_url)
                 db.session.add(new_link)
                 db.session.commit()
                 print("Download is complete!")
