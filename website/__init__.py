@@ -2,9 +2,10 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from pathlib import Path
 from flask_login import LoginManager
+from flask_migrate import Migrate
 
 db = SQLAlchemy()
-database_name ="gradebook.db"
+database_name = "gradebook.db"
 
 def create_app():
     created_app = Flask(__name__)
@@ -19,9 +20,9 @@ def create_app():
     # created_app.register_blueprint(visuals, url_prefix='/')
     # created_app.register_blueprint(authentication, url_prefix='/')
 
-    from .database import User, YoutubeLinks
-
     create_database_if_not_exist(created_app)
+    from website.database import User, YoutubeLinks
+    migrate = Migrate(created_app, db)
 
     login_manager = LoginManager()
     login_manager.login_view = 'login'
@@ -32,7 +33,6 @@ def create_app():
         return User.query.get(int(id))
 
     return created_app
-
 
 def create_database_if_not_exist(created_app):
     if not Path('website/' + database_name).exists():
