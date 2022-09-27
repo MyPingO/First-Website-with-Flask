@@ -44,8 +44,6 @@ def logout():
 
 def check_sign_up_details(email, username, password, confirm_password) -> bool:
     if email and username and password and confirm_password:
-            symbols = set("!@#$%^&*()_+-=[]{};:,./<>?")
-
             if len(email) < 4:
                 flash("Email must be greater than 3 characters.", category="error")
             if len(username) < 2:
@@ -55,17 +53,6 @@ def check_sign_up_details(email, username, password, confirm_password) -> bool:
                 return False
             else:
                 valid_details = True
-                if (
-                    any(c.isdigit() for c in password) == False 
-                    or any(c.isupper() for c in password) == False
-                    or any(c.islower() for c in password) == False
-                    or any(c in symbols for c in password) == False
-                ):
-                    flash(
-                        "Password must contain at least one Uppercase letter, one Lowercase letter, one Number, and one Symbol.",
-                        category="error",
-                    )
-                    return False
                 if password != confirm_password:
                     flash("Passwords don't match.", category="error")
                     valid_details = False
