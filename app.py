@@ -8,9 +8,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = create_app()
 
-@app.route('/', methods = ['GET', 'POST'])
-@login_required
-def home():
+@app.route('/playlist-downloader', methods = ['GET', 'POST'])
+def playlist_downloader():
     data = request.form
     print(data)
     if request.method == 'POST': 
@@ -18,8 +17,8 @@ def home():
         end_video = data.get('end_video')
         url = data.get('url')
         check = mp3_downloader.downloader(url = url, user = current_user, start_video = start_video, end_video = end_video)
-        return check or redirect(url_for('home'))
-    return render_template('home.html', user = current_user)
+        return check or redirect(url_for('playlist_downloader'))
+    return render_template('playlist_downloader.html', user = current_user)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -30,7 +29,7 @@ def login():
             if check_password_hash(user.password, request.form["password"]):
                 flash(f"Logged in successfully! Welcome back, {user.username}.", category="success")
                 login_user(user, remember=True)
-                return redirect(url_for("home"))
+                return redirect(url_for("playlist_downloader"))
             else:
                 flash("Incorrect password.", category="error")
         else:
@@ -101,7 +100,7 @@ def sign_up():
             login_user(new_user, remember=True)
             flash(f"Account created! Welcome, {username}.", category="success")
 
-    return redirect(url_for('home')) if valid_sign_up_details else render_template("sign-up.html", user = current_user)
+    return redirect(url_for('playlist_downloader')) if valid_sign_up_details else render_template("sign-up.html", user = current_user)
 
 
 if __name__ == '__main__':

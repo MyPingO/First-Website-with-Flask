@@ -3,7 +3,7 @@
 {%block title%}Home Page{%endblock%}
 
 {%block cssimports%}
-<link rel="stylesheet" href="{{ url_for('static', filename='homestyles.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='playlistdownloaderstyles.css') }}">
 {%endblock%}
 
 {%block content%}
@@ -31,12 +31,12 @@
                 style="list-style:none; display: flex; flex-wrap: wrap; justify-content: center; padding-right: 20px">
                 <li class="rangeListItem" style="min-width: 300px; width: 23vw; max-width: 25vw;">
                     <!--TODO: change mind width according to screensize of mobile device-->
-                    <div style="white-space: nowrap; text-align: center;">Start from:</div>
+                    <div style="white-space: nowrap; text-align: center;">Start from playlist video (URL):</div>
                     <input class="form-control" type="text" name="start_video"
                         placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center;">
                 </li>
                 <li class="rangeListItem" style="min-width: 300px; width: 23vw; max-width: 25vw;">
-                    <div style="white-space: nowrap; text-align: center;">End at:</div>
+                    <div style="white-space: nowrap; text-align: center;">End at playlist video (URL):</div>
                     <input class="form-control" type="text" name="end_video"
                         placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center;">
                 </li>

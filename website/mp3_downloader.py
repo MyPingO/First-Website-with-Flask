@@ -90,21 +90,21 @@ def downloader(url: str, user: User, start_video: str, end_video: str):
                         video.streams.get_audio_only().stream_to_buffer(audio_data)
                         audio_data.seek(0)
                         zip.writestr(zinfo_or_arcname=f"{video.title}.mp3", data=audio_data.read(), compress_type=zipfile.ZIP_DEFLATED)
-                        new_links.append(YoutubeLinks(link=video_url, user_id=user.id, title=video.title, date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"), thumbnail_link=video.thumbnail_url))
+                        new_links.append(YoutubeLinks(link=video_url, user_id=user.id or None, title=video.title, date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"), thumbnail_link=video.thumbnail_url))
                         break
                     except Exception as e:
                         print(e)
                         traceback.print_exc()
             print("Done downloading mp3 files") 
         zip_bytes.seek(0)
-        try:
-            for link in new_links:
-                db.session.add(link)
-            db.session.commit()
-        except Exception as e:
-            print(e)
-            db.session.rollback()
-            traceback.print_exc()
+        if user.is_authenticated:
+            try:
+                db.session.add_all(new_links)
+                db.session.commit()
+            except Exception as e:
+                print(e)
+                db.session.rollback()
+                traceback.print_exc()
         return send_file(zip_bytes, download_name=f"{title}.zip", as_attachment=True)
     else:
         #TODO zip.open(zip.filelist[0], "w")
@@ -127,9 +127,10 @@ def downloader(url: str, user: User, start_video: str, end_video: str):
                 video = YouTube(url)
                 video.streams.get_audio_only().stream_to_buffer(audio_data)
                 audio_data.seek(0)
-                new_link = YoutubeLinks(link=url, user_id=user.id, title=video.title, date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"), thumbnail_link=video.thumbnail_url)
-                db.session.add(new_link)
-                db.session.commit()
+                if user.is_authenticated:
+                    new_link = YoutubeLinks(link=url, user_id=user.id, title=video.title, date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"), thumbnail_link=video.thumbnail_url)
+                    db.session.add(new_link)
+                    db.session.commit()
                 print("Download is complete!")
                 return send_file(audio_data, as_attachment=True, download_name=f"{video.title}.mp3")
             except Exception as e:
