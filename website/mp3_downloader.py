@@ -1,7 +1,6 @@
 from datetime import datetime
 from io import BytesIO
 import traceback
-from typing import Optional
 import youtube_dl
 import re
 from re import fullmatch
@@ -11,6 +10,8 @@ from flask import send_file, flash
 import zipfile
 from zipfile import ZipFile
 from website.database import User, YoutubeLinks, db
+
+#TODO: replace '/' in video title with '-'
 
 def downloader(url: str, user: User, start_video: str, end_video: str):
     if not url:
@@ -34,9 +35,12 @@ def downloader(url: str, user: User, start_video: str, end_video: str):
         playlist_min_range = 0
         playlist_max_range = len(playlist.video_urls)
         if start_video:
-            if fullmatch(pattern=pattern, string=start_video):
+            match = fullmatch(pattern=pattern, string=start_video)
+            if match:
                 try:
+                    start_video = match.group(1)
                     playlist_min_range = playlist.index(start_video)
+                    #TODO 'https://www.youtube.com/watch?v=fsP8ByqNVOE&list=PLpq1vrb8z_YcqqsLsf6W1YZXhibS7bPSA&index=1' invalid link
                 except ValueError as ve:
                     flash("Cannot download playlist. Reason: Start video link is not in playlist.", category="error")
                     print(ve)
@@ -49,8 +53,10 @@ def downloader(url: str, user: User, start_video: str, end_video: str):
                 flash("Cannot download playlist. Reason: Start video link is not a valid youtube link.", category="error")
                 return None
         if end_video:
-            if fullmatch(pattern=pattern, string=end_video):
+            match = fullmatch(pattern=pattern, string=end_video)
+            if match:
                 try:
+                    end_video = match.group(1)
                     playlist_max_range = playlist.index(end_video) + 1
                 except ValueError as ve:
                     flash("Cannot download playlist. Reason: End video link is not in playlist.", category="error")
@@ -102,9 +108,11 @@ def downloader(url: str, user: User, start_video: str, end_video: str):
         return send_file(zip_bytes, download_name=f"{title}.zip", as_attachment=True)
     else:
         #TODO zip.open(zip.filelist[0], "w")
-        if not fullmatch(pattern=pattern, string=url):
+        match = fullmatch(pattern=pattern, string=url)
+        if not match:
             flash("Cannot download video. Reason: Invalid youtube link.", category="error")
             return None
+        url = match.group(1)
         print("Downloading URL")
         try_counter = 0
         while True:
