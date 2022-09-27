@@ -20,30 +20,30 @@
             <button class="btn btn-primary searchButton" type="submit">Search</button>
         </div>
     </div>
-</form>
-<div>
-    <div class="rangeSettings" style="padding-top: 20px; padding-right: 20px; text-align: center;">
-        <div style="padding-left: 20px;">
-            <label for="Ranges" style="text-align: center;">
-                <h4>Specify Range (Inclusive)</h4>
-            </label>
+    <div>
+        <div class="rangeSettings" style="padding-top: 20px; padding-right: 20px; text-align: center;">
+            <div style="padding-left: 20px;">
+                <label for="Ranges" style="text-align: center;">
+                    <h4>Specify Range (Inclusive)</h4>
+                </label>
+            </div>
+            <ul class="rangeSettings"
+                style="list-style:none; display: flex; flex-wrap: wrap; justify-content: center; padding-right: 20px">
+                <li class="rangeListItem" style="min-width: 300px; width: 23vw; max-width: 25vw;">
+                    <!--TODO: change mind width according to screensize of mobile device-->
+                    <div style="white-space: nowrap; text-align: center;">Start from:</div>
+                    <input class="form-control" type="text" name="start_video"
+                        placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center;">
+                </li>
+                <li class="rangeListItem" style="min-width: 300px; width: 23vw; max-width: 25vw;">
+                    <div style="white-space: nowrap; text-align: center;">End at:</div>
+                    <input class="form-control" type="text" name="end_video"
+                        placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center;">
+                </li>
+            </ul>
         </div>
-        <ul class="rangeSettings"
-            style="list-style:none; display: flex; flex-wrap: wrap; justify-content: center; padding-right: 20px">
-            <li class="rangeListItem" style="min-width: 300px; width: 23vw; max-width: 25vw;">
-                <!--TODO: change mind width according to screensize of mobile device-->
-                <div style="white-space: nowrap; text-align: center;">Start from:</div>
-                <input class="form-control" type="text" name="start_video"
-                    placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center;">
-            </li>
-            <li class="rangeListItem" style="min-width: 300px; width: 23vw; max-width: 25vw;">
-                <div style="white-space: nowrap; text-align: center;">End at:</div>
-                <input class="form-control" type="text" name="end_video"
-                    placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center;">
-            </li>
-        </ul>
     </div>
-</div>
+</form>
 {% if user.links %}
 <div class="previousSearchList" style="padding-left:1vw; padding-top: 20px;">
     <form method="POST">
