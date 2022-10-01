@@ -8,6 +8,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = create_app()
 
+@app.route('/', methods = ['GET', 'POST'])
+def home():
+    return redirect(url_for('playlist_downloader'))
+
 @app.route('/playlist-downloader', methods = ['GET', 'POST'])
 def playlist_downloader():
     data = request.form
