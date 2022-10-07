@@ -1,10 +1,10 @@
 from pathlib import Path
-from turtle import end_fill
 from flask import render_template, request, flash, redirect, url_for
 from flask_login import login_user, logout_user, login_required, current_user
 from website import create_app, mp3_downloader
 from website.database import User, YoutubeLinks, db
 from werkzeug.security import generate_password_hash, check_password_hash
+
 
 app = create_app()
 
@@ -20,8 +20,9 @@ def playlist_downloader():
         start_video = data.get('start_video')
         end_video = data.get('end_video')
         url = data.get('url')
-        check = mp3_downloader.downloader(url = url, user = current_user, start_video = start_video, end_video = end_video)
-        return check or redirect(url_for('playlist_downloader'))
+        file = mp3_downloader.downloader(url = url, user = current_user, start_video = start_video, end_video = end_video)
+        
+        return file or redirect(url_for('playlist_downloader'))
     return render_template('playlist_downloader.html', user = current_user)
 
 @app.route("/login", methods=["GET", "POST"])
@@ -48,25 +49,25 @@ def logout():
 
 def check_sign_up_details(email, username, password, confirm_password) -> bool:
     if email and username and password and confirm_password:
-            if len(email) < 4:
-                flash("Email must be greater than 3 characters.", category="error")
-            if len(username) < 2:
-                flash("Username must be greater than 1 character.", category="error")
-            if len(password) < 5:
-                flash("Password must be greater than 4 characters.", category="error")
-                return False
-            else:
-                valid_details = True
-                if password != confirm_password:
-                    flash("Passwords don't match.", category="error")
-                    valid_details = False
-                if User.query.filter_by(email=email).first() != None:
-                    flash("Email already exists.", category="error")
-                    valid_details = False
-                if User.query.filter_by(username=username).first() != None:
-                    flash("Username already exists.", category="error")
-                    valid_details = False
-                return valid_details
+        if len(email) < 4:
+            flash("Email must be greater than 3 characters.", category="error")
+        if len(username) < 2:
+            flash("Username must be greater than 1 character.", category="error")
+        if len(password) < 5:
+            flash("Password must be greater than 4 characters.", category="error")
+            return False
+        else:
+            valid_details = True
+            if password != confirm_password:
+                flash("Passwords don't match.", category="error")
+                valid_details = False
+            if User.query.filter_by(email=email).first() != None:
+                flash("Email already exists.", category="error")
+                valid_details = False
+            if User.query.filter_by(username=username).first() != None:
+                flash("Username already exists.", category="error")
+                valid_details = False
+            return valid_details
     else:
         flash("Please fill out all fields.", category="error")
     return False
