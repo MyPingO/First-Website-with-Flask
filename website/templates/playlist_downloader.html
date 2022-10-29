@@ -12,6 +12,7 @@
 
         let socketid = undefined
         let fileName = undefined
+        const progressBar = document.getElementById("progress-bar");
     
         socket.on("connect", function () {
             console.log("Connected to server");
@@ -26,7 +27,6 @@
         });
         socket.on("zip update", function (percent) {
             console.log("Received message from server: " + percent);
-            const progressBar = document.getElementById("progress-bar");
             if (percent) {
                 progressBar.innerText = percent + "%";
                 progressBar.style.width = percent + "%";
@@ -42,6 +42,7 @@
         playlistInput.focus();
 
         const playlistForm = document.getElementById("playlistForm");
+
         playlistForm.onsubmit = function (event) {
             event.preventDefault();
             let formData = new FormData(playlistForm);
@@ -57,6 +58,8 @@
                 let playlistName = playlistInput.value.split("=").pop();
                 a.download = fileName;
                 a.click();
+                progressBar.innerText = "0%";
+                progressBar.style.width = "0%";
             });
         };
     }

@@ -17,9 +17,6 @@ import traceback
 
 app = create_app()
 socketio = SocketIO(app, cors_allowed_origins="*")
-percentage = None #TODO make dict
-
-socketid = None
 
 socket_id_to_percentage = {
 
@@ -51,9 +48,10 @@ def connect():
 def handle_percent_change(message):
     pass
 
+#set up the socketid to percentage dictionary for this user
 @socketio.on('socket id')
 def join(id):
-    socket_id_to_percentage[id] = percentage
+    socket_id_to_percentage[id] = 0
     print(socket_id_to_percentage)
 
 @app.route("/login", methods=["GET", "POST"])
