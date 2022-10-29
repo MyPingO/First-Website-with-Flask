@@ -6,7 +6,7 @@ import re
 from re import fullmatch
 import os
 from pytube import Playlist, YouTube
-from flask import send_file, flash, make_response, Response
+from flask import send_file, flash, jsonify
 import zipfile
 from zipfile import ZipFile
 from website.database import User, YoutubeLinks, db
@@ -88,15 +88,17 @@ def downloader(url: str, user: User, start_video: str, end_video: str):
                         try_counter += 1
                         audio_data = BytesIO()
                         video = YouTube(video_url)
-                        print(f"Getting video information for {video.title}")
+                        print(f"Downloading {video.title}...")
                         video.streams.get_audio_only().stream_to_buffer(audio_data)
                         audio_data.seek(0)
                         zip.writestr(zinfo_or_arcname=f"{video.title}.mp3", data=audio_data.read(), compress_type=zipfile.ZIP_DEFLATED)
-                        new_links.append(YoutubeLinks(link=video_url, user_id=user.id or None, title=video.title, date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"), thumbnail_link=video.thumbnail_url))
+                        if (user.is_authenticated):
+                            new_links.append(YoutubeLinks(link=video_url, user_id=user.id, title=video.title, date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"), thumbnail_link=video.thumbnail_url))
                         break
                     except Exception as e:
                         print(e)
                         traceback.print_exc()
+                yield f"Downloaded {video.title} {round((playlist.index(video_url) + 1) / len(playlist) * 100, 2)}%"
             print("Done downloading mp3 files") 
         zip_bytes.seek(0)
         if user.is_authenticated:

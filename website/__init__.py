@@ -1,11 +1,14 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from pathlib import Path
+# from flask_sock import Sock
 from flask_login import LoginManager
 from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 database_name = "gradebook.db"
+
+# socket = Sock()
 
 def create_app():
     created_app = Flask(__name__)
@@ -13,6 +16,7 @@ def create_app():
     created_app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{database_name}'
     created_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(created_app)
+    # socket.init_app(created_app)
 
     # from .visuals import visuals
     # from .authentication import authentication

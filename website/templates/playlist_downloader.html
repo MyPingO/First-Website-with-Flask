@@ -6,20 +6,79 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='playlistdownloaderstyles.css') }}">
 {%endblock%}
 
+{%block scripts%}
+<script type="text/javascript">
+    window.onload = function () {
+
+        let socketid = undefined
+        let fileName = undefined
+    
+        socket.on("connect", function () {
+            console.log("Connected to server");
+            socket.send("Hello server");
+            socketid = socket.id;
+            socket.emit("socket id", socket.id);
+            console.log("ID: " + socketid);
+        });
+        socket.on('disconnect', function () {
+            console.log("Disconnected from server");
+            socket.disconnect();
+        });
+        socket.on("zip update", function (percent) {
+            console.log("Received message from server: " + percent);
+            const progressBar = document.getElementById("progress-bar");
+            if (percent) {
+                progressBar.innerText = percent + "%";
+                progressBar.style.width = percent + "%";
+            }
+        });
+        socket.on("file name", function (name) {
+            console.log("File name will be: " + name);
+            fileName = name;
+        });
+        
+
+        const playlistInput = document.getElementById("playlistInput");
+        playlistInput.focus();
+
+        const playlistForm = document.getElementById("playlistForm");
+        playlistForm.onsubmit = function (event) {
+            event.preventDefault();
+            let formData = new FormData(playlistForm);
+            fetch("/download/" + socket.id,
+            {
+                method: playlistForm.method,
+                body: formData
+            })
+            .then((res) => { return res.blob(); })
+            .then((data) => {
+                var a = document.createElement("a");
+                a.href = window.URL.createObjectURL(data);
+                let playlistName = playlistInput.value.split("=").pop();
+                a.download = fileName;
+                a.click();
+            });
+        };
+    }
+</script>
+{%endblock%}
+
 {%block content%}
 
-<form method="POST">
+<form action = "/download" id="playlistForm" method="POST">
     <div class="formGroup">
         <label for="ytplaylist">
             <h3>Enter YouTube Playlist/Video Link Here</h3>
         </label>
         <div class="inputs">
             <div class="formInput textInput">
-                <input type="text" class="form-control" name="url" style="text-align:center;">
+                <input id="playlistInput" type="text" class="form-control" name="url" style="text-align:center;">
             </div>
             <button class="btn btn-primary searchButton" type="submit">Search</button>
         </div>
     </div>
+    <div class="progress-bar" id="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="0"
+        aria-valuemin="0" aria-valuemax="100"></div>
     <div>
         <div class="rangeSettings" style="padding-top: 20px; padding-right: 20px; text-align: center;">
             <div style="padding-left: 20px;">
@@ -69,7 +128,7 @@
                             <br>
                         </div>
                         {% if youtube_link.thumbnail_link %}
-                        <a href="{{ youtube_link.thumbnail_link }}" target="_blank" title = "Video Thumbnail">
+                        <a href="{{ youtube_link.thumbnail_link }}" target="_blank" title="Video Thumbnail">
                             <img class="thumbnail" src="{{ youtube_link.thumbnail_link }}" alt="Video Thumbnail"
                                 style="width: 100%; height: 75%; margin-top: 10px;">
                         </a>
