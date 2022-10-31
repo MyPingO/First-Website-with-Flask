@@ -6,7 +6,7 @@
     display: flex;
     justify-content: center;
 }
-.textInput {
+.playlist {
     min-width: 250px;
     width: 33vw;
     padding-right: 1vw;
