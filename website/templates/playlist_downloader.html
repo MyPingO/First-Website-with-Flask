@@ -8,28 +8,32 @@
 
 {%block scripts%}
 <script type="text/javascript">
+    let fileName = undefined
     window.onload = function () {
         const href = window.location.href;
-
+        
         let socketid = undefined
-        let fileName = undefined
 
         const progressBar = document.getElementById("progress-bar");
         const progress = document.getElementById("progress");
-        
         const playlistForm = document.getElementById("playlistForm");
         const playlistInput = document.getElementById("playlistInput");
         playlistInput.focus();
 
+        for (form of [...document.getElementsByClassName("redownload")]) {
+            form.onsubmit = download;
+        }
+        //I dont get why form.onsubmit = download; works, but doing it in the html doesnt
+        //difference? 
         socket.on("connect", function () {
             console.log("Connected to server");
-            socket.send("Hello server");
+            socket.connect();
+            
             socketid = socket.id;
-            socket.emit("socket id", socket.id);
             console.log("ID: " + socketid);
         });
-        socket.on('disconnect', function () {
-            console.log("Disconnected from server");
+        socket.on("get id", function () {
+            socket.emit("socket id", socket.id);
         });
         socket.on("zip update", function (percent) {
             console.log("Received message from server: " + percent);
@@ -40,6 +44,9 @@
         socket.on("file name", function (name) {
             console.log("File name will be: " + name);
             fileName = name;
+        });
+        socket.on('disconnect', function () {
+            console.log("Disconnected from server");
         });
         
         playlistForm.onsubmit = function (event) {
@@ -66,7 +73,31 @@
                 }, 2000);
             });
         };
+
     }
+    function download(event) {
+        event.preventDefault();
+        let formData = new FormData(event.target);
+        console.log("Form data: " + formData);
+        fetch("/download/" + socket.id,
+        {
+            method: event.target.method,
+            body: formData
+        })
+        .then((res) => { 
+            return res.blob(); 
+        })
+        .then((data) => {
+            var a = document.createElement("a");
+            a.href = window.URL.createObjectURL(data);
+            a.download = fileName;
+            a.click();
+            //reload page after 1 second to view the videos that downloaded
+            setTimeout(function() {
+                location.reload();
+            }, 1000);
+        });
+    };
 </script>
 {%endblock%}
 
@@ -84,7 +115,7 @@
             <button class="btn btn-primary searchButton" type="submit">Search</button>
         </div>
     </div>
-    <div class = "progress" id = "progress" style="background-color: gray; width: 42.5vw; margin: auto; margin-top: 1%; text-align: center;">
+    <div class = "progress download" id = "progress">
         <div class="progress-bar" id="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0"
             aria-valuemin="0" aria-valuemax="100">
         </div>
@@ -114,12 +145,11 @@
     </div>
 </form>
 {% if user.links %}
-<div class="previousSearchList" style="padding-left:1vw; padding-top: 20px;">
-    <form method="POST">
-        <div class="searchListDiv" style="display: flex; justify-content: center;">
-            <ul class="list-group searchList" style="max-width: fit-content; padding-right: 1vw;">
+<div class="previousDownloadsList" style="padding-left:1vw; padding-top: 20px;">
+        <div class="downloadsListDiv" style="display: flex; justify-content: center;">
+            <ul class="list-group downloadsList" style="max-width: fit-content; padding-right: 1vw;">
                 <label for="PreviousDownloads" style="text-align: center;">
-                    <h4>Previous Searches</h4>
+                    <h4>Previous Downloads</h4>
                 </label>
                 {% for youtube_link in user.links|reverse %}
                 <li class="list-group-item">
@@ -130,11 +160,14 @@
                         </a>
                         <div style="padding-top: 5px;">
                             Date: {{youtube_link.date_added}}
-                            <button type="submit" value="{{youtube_link.link}}" title="{Download Again!}" name="url"
-                                id="redownload"
-                                style="font-size: 13px; text-align: center; padding: 0px 3px 0px 3px; border-width: 1px;">
-                                Download Again!
-                            </button>
+                            <!-- TODO Fix button position when in form -->
+                            <form class = "redownload" action="/download" method = "POST">
+                                <input type="hidden" name="url" value="{{youtube_link.link}}">
+                                <button type="submit" title="Download Again!"
+                                    style="font-size: 13px; text-align: center; padding: 0px 3px 0px 3px; border-width: 1px;">
+                                    Download Again!
+                                </button>
+                            </form>
                             <br>
                         </div>
                         {% if youtube_link.thumbnail_link %}
@@ -148,7 +181,6 @@
                 {% endfor %}
             </ul>
         </div>
-    </form>
 </div>
 {% endif %}
 

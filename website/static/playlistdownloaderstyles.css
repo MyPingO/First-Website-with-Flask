@@ -11,6 +11,16 @@
     width: 33vw;
     padding-right: 1vw;
 }
+.progress.download{
+    background-color: gray;
+    min-width: 325px;
+    margin: auto;
+    margin-top: 1%;
+    width: 40vw;
+}
+.progress-bar{
+    background-color: gray;
+}
 .rangeListItem {
     margin-right: 1vw;
 }

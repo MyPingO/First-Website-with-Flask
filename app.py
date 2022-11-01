@@ -47,6 +47,7 @@ def download(socketid):
 @socketio.on("connect")
 def connect():
     print("Connected!")
+    socketio.emit("get id")
 
 
 @socketio.on("disconnect")
@@ -231,6 +232,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str, socketid:
                 new_links.append(
                     YoutubeLinks(
                         link=video_url,
+                        user_id = user.id,
                         title=video.title,
                         date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"),
                         thumbnail_link=video.thumbnail_url,
