@@ -18,7 +18,9 @@
     integrity="sha512-VJ6+sp2E5rFQk05caiXXzQd1wBABpjEj1r5kMiLmGAAgwPItw1YpqsCCBtq8Yr1x6C49/mTpRdXtq8O2RcZhlQ=="
     crossorigin="anonymous">
   </script> -->
-  <script src="https://cdn.socket.io/4.5.3/socket.io.min.js" integrity="sha384-WPFUvHkB1aHA5TDSZi6xtDgkF0wXJcIIxXhC6h8OT8EH3fC5PWro5pWJ1THjcfEi" crossorigin="anonymous"></script>
+  <script src="https://cdn.socket.io/4.5.3/socket.io.min.js"
+    integrity="sha384-WPFUvHkB1aHA5TDSZi6xtDgkF0wXJcIIxXhC6h8OT8EH3fC5PWro5pWJ1THjcfEi"
+    crossorigin="anonymous"></script>
   <!-- Scripts-->
   <script>
     const socket = io();
@@ -57,25 +59,25 @@
   </nav>
   <!--End of Navbar from Bootstrap-->
   {% with messages = get_flashed_messages(with_categories=true)%}
-  {% if messages %}
-  {% for category, message in messages %}
-  {% if category == "error" %}
-  <div class="alert alert-danger alter-dismissable fade show" role="alert">
-    {{ message }}
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-      <i class="bi bi-x-circle"></i>
-    </button>
-  </div>
-  {% elif category == "success" %}
-  <div class="alert alert-success alter-dismissable fade show" role="alert">
-    {{ message }}
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-      <i class="bi bi-x-circle"></i>
-    </button>
-  </div>
-  {% endif %}
-  {% endfor %}
-  {% endif %}
+    {% if messages %}
+      {% for category, message in messages %}
+        {% if category == "error" %}
+        <div class="alert alert-danger alter-dismissable fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <i class="bi bi-x-circle"></i>
+          </button>
+        </div>
+        {% elif category == "success" %}
+        <div class="alert alert-success alter-dismissable fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <i class="bi bi-x-circle"></i>
+          </button>
+        </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
   {% endwith %}
 
   {%block content%}

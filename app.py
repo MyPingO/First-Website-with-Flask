@@ -42,7 +42,7 @@ def download(socketid):
     end_video = data.get("end_video")
     url = data.get("url")
     file = downloader(url=url, user=current_user, start_video=start_video, end_video=end_video, socketid=socketid)
-    return file
+    return file or redirect(url_for('playlist_downloader'))
 
 
 @socketio.on("connect")

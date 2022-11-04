@@ -57,7 +57,10 @@
                 method: playlistForm.method,
                 body: formData
             })
-            .then((res) => { return res.blob(); })
+            .then((response) => {
+                if (response.redirected) window.location = response.url;
+                else return response.blob(); 
+            })
             .then((data) => {
                 var a = document.createElement("a");
                 a.href = window.URL.createObjectURL(data);
@@ -84,8 +87,8 @@
             method: event.target.method,
             body: formData
         })
-        .then((res) => {
-            return res.blob(); 
+        .then((response) => {
+            return response.blob(); 
         })
         .then((data) => {
             var a = document.createElement("a");
