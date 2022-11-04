@@ -1,7 +1,7 @@
 from website import create_app, mp3_downloader
 from website.database import User, YoutubeLinks, db
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import render_template, request, flash, redirect
+from flask import get_flashed_messages, jsonify, render_template, request, flash, redirect
 from flask import send_file, flash, url_for, Response, stream_with_context
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_socketio import SocketIO, join_room, leave_room, send, emit
@@ -42,7 +42,7 @@ def download(socketid):
     end_video = data.get("end_video")
     url = data.get("url")
     file = downloader(url=url, user=current_user, start_video=start_video, end_video=end_video, socketid=socketid)
-    return file or redirect(url_for('playlist_downloader'))
+    return file or jsonify(get_flashed_messages(with_categories=True)), 200, {"Content-Type": "application/json"}
 
 
 @socketio.on("connect")

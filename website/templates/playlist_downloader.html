@@ -11,7 +11,7 @@
     let fileName = undefined
     window.onload = function () {
         const href = window.location.href;
-        
+
         let socketid = undefined
 
         const progressBar = document.getElementById("progress-bar");
@@ -23,12 +23,11 @@
         for (form of [...document.getElementsByClassName("redownload")]) {
             form.onsubmit = download;
         }
-        //I dont get why form.onsubmit = download; works, but doing it in the html doesnt
-        //difference? 
+
         socket.on("connect", function () {
             console.log("Connected to server");
             socket.connect();
-            
+
             socketid = socket.id;
             console.log("ID: " + socketid);
         });
@@ -48,47 +47,81 @@
         socket.on('disconnect', function () {
             console.log("Disconnected from server");
         });
-        
+
         playlistForm.onsubmit = function (event) {
             event.preventDefault();
             let formData = new FormData(playlistForm);
-            fetch("/download/" + socket.id,
-            {
+            fetch("/download/" + socket.id,{
                 method: playlistForm.method,
                 body: formData
             })
             .then((response) => {
-                if (response.redirected) window.location = response.url;
-                else return response.blob(); 
-            })
-            .then((data) => {
-                var a = document.createElement("a");
-                a.href = window.URL.createObjectURL(data);
-                a.download = fileName;
-                a.click();
-                //set progress bar back to 0% after 1 second
-                setTimeout(function() {
-                    progressBar.style.width = "0%";
-                }, 1000);
-                //reload page after 2 second to view the videos that downloaded
-                setTimeout(function() {
-                    location.reload();
-                }, 2000);
-            });
-        };
+                //check if response header entries contains an attachment content-disposition
+                if (response.headers.has("content-disposition") && response.headers.get("content-disposition").includes("attachment")) {
+                    //if it is, then download the file
+                    response.blob().then((data) => {
+                        let a = document.createElement("a");
+                        a.href = window.URL.createObjectURL(data);
+                        a.download = fileName;
+                        a.click();
+                        //set progress bar back to 0% after 1 second
+                        setTimeout(function () {
+                            progressBar.style.width = "0%";
+                        }, 1000);
+                        //reload page after 2 second to view the videos that downloaded
+                        setTimeout(function () {
+                            location.reload();
+                        }, 2000);
+                    });
+                }
+                //check if response type is json data
+                else if (response.headers.has("content-type") && response.headers.get("content-type") == "application/json") {
+                    //display all flash messages in the json data
+                    response.json().then((data) => {
+                        let alerts = document.getElementById("alerts");
+                        alerts.innerHTML = "";
+                        for (let flashData of data) {
+                            let category = flashData[0];
+                            let message = flashData[1];
+                            let alertType = category == "error" ? "alert-danger" : "alert-success";
+                            let flashMessageDiv = document.createElement("div");
+                            flashMessageDiv.className = `alert ${alertType} alter-dismissable fade show`;
+                            flashMessageDiv.innerHTML = message;
+                            flashMessageDiv.setAttribute("role", "alert");
+                            flashMessageDiv.style = "width: 33vw; min-width: fit-content; margin: auto; text-align: center;";
 
+                            let closeButton = document.createElement("button");
+                            closeButton.type = "button";
+                            closeButton.className = "close";
+                            //prevent closeButton from moving
+                            closeButton.style = "padding-left: 1vw";
+                            closeButton.setAttribute("data-dismiss", "alert");
+                            closeButton.setAttribute("aria-label", "Close");
+
+                            let i = document.createElement("i");
+                            i.className = "bi bi-x-circle";
+
+                            closeButton.appendChild(i);
+                            flashMessageDiv.appendChild(closeButton);
+                            flashMessageDiv.appendChild(document.createElement("br"));
+                            alerts.appendChild(flashMessageDiv);
+
+                        }
+                    });
+                }
+            })
+        };
     }
     function download(event) {
         event.preventDefault();
         let formData = new FormData(event.target);
         console.log("Form data: " + formData);
-        fetch("/download/" + socket.id,
-        {
+        fetch("/download/" + socket.id, {
             method: event.target.method,
             body: formData
         })
         .then((response) => {
-            return response.blob(); 
+            return response.blob();
         })
         .then((data) => {
             var a = document.createElement("a");
@@ -96,7 +129,7 @@
             a.download = fileName;
             a.click();
             //reload page after 1 second to view the videos that downloaded
-            setTimeout(function() {
+            setTimeout(function () {
                 location.reload();
             }, 1000);
         });
@@ -106,10 +139,14 @@
 
 {%block content%}
 
-<form action = "/download" id="playlistForm" method="POST">
+<div class = "alerts" id = "alerts">
+    
+</div>
+
+<form action="/download" id="playlistForm" method="POST">
     <div class="formGroup">
         <label for="ytplaylist">
-            <h3>Enter YouTube Playlist/Video Link Here</h3>
+            <h1>Enter YouTube Playlist/Video Link Here</h1>
         </label>
         <div class="inputs">
             <div class="formInput playlist">
@@ -118,7 +155,7 @@
             <button class="btn btn-primary searchButton" type="submit">Search</button>
         </div>
     </div>
-    <div class = "progress download" id = "progress">
+    <div class="progress download" id="progress">
         <div class="progress-bar" id="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0"
             aria-valuemin="0" aria-valuemax="100">
         </div>
@@ -132,13 +169,13 @@
             </div>
             <ul class="rangeSettings"
                 style="list-style:none; display: flex; flex-wrap: wrap; justify-content: center; padding-right: 20px">
-                <li class="rangeListItem" style="min-width: 300px; width: 23vw; max-width: 25vw;">
+                <li class="rangeListItem" style="min-width: 325px; width: 23vw; max-width: 25vw;">
                     <!--TODO: change min width according to screensize of mobile device-->
                     <div style="white-space: nowrap; text-align: center;">Start from playlist video (URL):</div>
                     <input class="form-control" type="text" name="start_video"
                         placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center;">
                 </li>
-                <li class="rangeListItem" style="min-width: 300px; width: 23vw; max-width: 25vw;">
+                <li class="rangeListItem" style="min-width: 325px; width: 23vw; max-width: 25vw;">
                     <div style="white-space: nowrap; text-align: center;">End at playlist video (URL):</div>
                     <input class="form-control" type="text" name="end_video"
                         placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center;">
@@ -149,41 +186,41 @@
 </form>
 {% if user.links %}
 <div class="previousDownloadsList" style="padding-left:1vw; padding-top: 20px;">
-        <div class="downloadsListDiv" style="display: flex; justify-content: center;">
-            <ul class="list-group downloadsList" style="max-width: fit-content; padding-right: 1vw;">
-                <label for="PreviousDownloads" style="text-align: center;">
-                    <h4>Previous Downloads</h4>
-                </label>
-                {% for youtube_link in user.links|reverse %}
-                <li class="list-group-item">
-                    <div style="text-align: center;">
-                        <strong>{{youtube_link.title}}</strong> <br>
-                        <a href="{{ youtube_link.link }}" target="_blank">
-                            {{ youtube_link.link }}
-                        </a>
-                        <div style="padding-top: 5px;">
-                            Date: {{youtube_link.date_added}}
-                            <!-- TODO Fix button position when in form -->
-                            <form class = "redownload" action="/download" method = "POST">
-                                <input type="hidden" name="url" value="{{youtube_link.link}}">
-                                <button type="submit" title="Download Again!"
-                                    style="font-size: 13px; text-align: center; padding: 0px 3px 0px 3px; border-width: 1px;">
-                                    Download Again!
-                                </button>
-                            </form>
-                            <br>
-                        </div>
-                        {% if youtube_link.thumbnail_link %}
-                        <a href="{{ youtube_link.thumbnail_link }}" target="_blank" title="Video Thumbnail">
-                            <img class="thumbnail" src="{{ youtube_link.thumbnail_link }}" alt="Video Thumbnail"
-                                style="width: 100%; height: 75%; margin-top: 10px;">
-                        </a>
-                        {% endif %}
+    <div class="downloadsListDiv" style="display: flex; justify-content: center;">
+        <ul class="list-group downloadsList" style="max-width: fit-content; padding-right: 1vw;">
+            <label for="PreviousDownloads" style="text-align: center;">
+                <h4>Previous Downloads</h4>
+            </label>
+            {% for youtube_link in user.links|reverse %}
+            <li class="list-group-item">
+                <div style="text-align: center;">
+                    <strong>{{youtube_link.title}}</strong> <br>
+                    <a href="{{ youtube_link.link }}" target="_blank">
+                        {{ youtube_link.link }}
+                    </a>
+                    <div style="padding-top: 5px;">
+                        Date: {{youtube_link.date_added}}
+                        <!-- TODO Fix button position when in form -->
+                        <form class="redownload" action="/download" method="POST">
+                            <input type="hidden" name="url" value="{{youtube_link.link}}">
+                            <button type="submit" title="Download Again!"
+                                style="font-size: 13px; text-align: center; padding: 0px 3px 0px 3px; border-width: 1px;">
+                                Download Again!
+                            </button>
+                        </form>
+                        <br>
                     </div>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
+                    {% if youtube_link.thumbnail_link %}
+                    <a href="{{ youtube_link.thumbnail_link }}" target="_blank" title="Video Thumbnail">
+                        <img class="thumbnail" src="{{ youtube_link.thumbnail_link }}" alt="Video Thumbnail"
+                            style="width: 100%; height: 75%; margin-top: 10px;">
+                    </a>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
 </div>
 {% endif %}
 
