@@ -140,7 +140,7 @@
 {%block content%}
 
 <div class = "alerts" id = "alerts">
-    
+
 </div>
 
 <form action="/download" id="playlistForm" method="POST">
@@ -198,10 +198,10 @@
                     <a href="{{ youtube_link.link }}" target="_blank">
                         {{ youtube_link.link }}
                     </a>
-                    <div style="padding-top: 5px;">
+                    <div style="padding-top: 1px; display: flex; justify-content: center;">
                         Date: {{youtube_link.date_added}}
                         <!-- TODO Fix button position when in form -->
-                        <form class="redownload" action="/download" method="POST">
+                        <form class="redownload" action="/download" method="POST" style = "margin-left: 5px;">
                             <input type="hidden" name="url" value="{{youtube_link.link}}">
                             <button type="submit" title="Download Again!"
                                 style="font-size: 13px; text-align: center; padding: 0px 3px 0px 3px; border-width: 1px;">
