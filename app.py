@@ -20,6 +20,7 @@ app = create_app()
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 #currently does nothing and is useless
+#TODO make this keep track of whether a user is downloading something or not
 socket_id_to_percentage = {}
 
 
@@ -232,7 +233,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str, socketid:
                 new_links.append(
                     YoutubeLinks(
                         link=video_url,
-                        user_id = user.id,
+                        user_id = None if not user.is_authenticated else user.id,
                         title=video.title,
                         date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"),
                         thumbnail_link=video.thumbnail_url,
