@@ -38,6 +38,7 @@
             console.log("Received message from server: " + percent);
             if (percent) {
                 progressBar.style.width = percent + "%";
+                percentText.innerHTML = Math.trunc(percent) + "%";
             }
         });
         socket.on("file name", function (name) {
@@ -67,6 +68,7 @@
                         //set progress bar back to 0% after 1 second
                         setTimeout(function () {
                             progressBar.style.width = "0%";
+                            percentText.innerHTML = "";
                         }, 1000);
                         //reload page after 2 second to view the videos that downloaded
                         setTimeout(function () {
@@ -155,9 +157,10 @@
             <button class="btn btn-primary searchButton" type="submit">Search</button>
         </div>
     </div>
-    <div class="progress download" id="progress">
+    <div class="progress position-relative download" id="progress" style="text-align: center;">
         <div class="progress-bar" id="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0"
             aria-valuemin="0" aria-valuemax="100">
+            <div class="justify-content-center d-flex position-absolute w-100" id = "percentText"></div>
         </div>
     </div>
     <div>
