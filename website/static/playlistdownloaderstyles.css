@@ -6,10 +6,21 @@
     display: flex;
     justify-content: center;
 }
-.playlist {
-    min-width: 250px;
-    width: 33vw;
-    padding-right: 1vw;
+.playlistForm {
+    min-width: 325px;
+    width: 37vw;
+}
+.dummy {
+    padding-left: 0;
+}
+.form-control.playlistInput {
+    padding-right: max(80px, 10%);
+}
+.btn.searchButton {
+    min-width: 65px;
+    width: 10%;
+    right: .25rem;
+    top: .2rem;
 }
 .progress.download{
     background-color: gray;
