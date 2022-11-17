@@ -1,10 +1,6 @@
 from website import db
 from flask_login import UserMixin
 
-class Task(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    percent_complete = db.Column(db.Integer, nullable=False)
-
 class YoutubeLinks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
