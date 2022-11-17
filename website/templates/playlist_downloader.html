@@ -83,58 +83,70 @@
                 displayAlerts(allAlerts);
                 allAlerts = []
             })
+            //reload html so that the new downloads get updated in the list
+            .then(() => {
+                fetch("/playlist-downloader", {
+                    method: "GET"
+                })
+                .then((response) => {
+                    return response.text();
+                })
+                .then((html) => {
+                    document.innerHTML = html;
+                })
+            });
         };
-    }
-    function download(event) {
-        event.preventDefault();
-        let formData = new FormData(event.target);
-        console.log("Form data: " + formData);
-        fetch("/download/" + socket.id, {
-            method: event.target.method,
-            body: formData
-        })
-        .then((response) => {
-            return response.blob();
-        })
-        .then((data) => {
-            var a = document.createElement("a");
-            a.href = window.URL.createObjectURL(data);
-            a.download = fileName;
-            a.click();
-
-        });
-    };
-    function displayAlerts(allAlerts) {
-        let alerts = document.getElementById("alerts");
-        alerts.innerHTML = "";
-        for (let flashData of allAlerts) {
-            let flashDiv = document.createElement("div");
-            flashDiv.style = "margin-top: 10px";
-
-            let message = flashData[0];
-            let category = flashData[1];
-            let alertType = category == "error" ? "alert-danger" : "alert-success";
-            let flashMessageDiv = document.createElement("div");
-            flashMessageDiv.className = `alert ${alertType} alter-dismissable fade show`;
-            flashMessageDiv.innerHTML = message;
-            flashMessageDiv.setAttribute("role", "alert");
-            flashMessageDiv.style = "width: 37vw; min-width: 325px; margin: auto; position: relative; padding-right: 3.25rem;";
-
-            let closeButton = document.createElement("button");
-            closeButton.type = "button";
-            closeButton.className = "close";
-            closeButton.style = "position: absolute; right: 1rem; top: .75rem; margin-left: 10px;"
-            closeButton.setAttribute("data-dismiss", "alert");
-            closeButton.setAttribute("aria-label", "Close");
-
-            let i = document.createElement("i");
-            i.className = "bi bi-x-circle";
-
-            closeButton.appendChild(i);
-            flashMessageDiv.appendChild(closeButton);
-            flashMessageDiv.appendChild(document.createElement("br"));
-            flashDiv.appendChild(flashMessageDiv);
-            alerts.appendChild(flashDiv);
+        function download(event) {
+            event.preventDefault();
+            let formData = new FormData(event.target);
+            console.log("Form data: " + formData);
+            fetch("/download/" + socket.id, {
+                method: "POST",
+                body: formData
+            })
+            .then((response) => {
+                return response.blob();
+            })
+            .then((data) => {
+                var a = document.createElement("a");
+                a.href = window.URL.createObjectURL(data);
+                a.download = fileName;
+                a.click();
+                fileName = undefined;
+            });
+        };
+        function displayAlerts(allAlerts) {
+            let alerts = document.getElementById("alerts");
+            alerts.innerHTML = "";
+            for (let flashData of allAlerts) {
+                let flashDiv = document.createElement("div");
+                flashDiv.style = "margin-top: 10px";
+    
+                let message = flashData[0];
+                let category = flashData[1];
+                let alertType = category == "error" ? "alert-danger" : "alert-success";
+                let flashMessageDiv = document.createElement("div");
+                flashMessageDiv.className = `alert ${alertType} alter-dismissable fade show`;
+                flashMessageDiv.innerHTML = message;
+                flashMessageDiv.setAttribute("role", "alert");
+                flashMessageDiv.style = "width: 37vw; min-width: 325px; margin: auto; position: relative; padding-right: 3.25rem;";
+    
+                let closeButton = document.createElement("button");
+                closeButton.type = "button";
+                closeButton.className = "close";
+                closeButton.style = "position: absolute; right: 1rem; top: .75rem; margin-left: 10px;"
+                closeButton.setAttribute("data-dismiss", "alert");
+                closeButton.setAttribute("aria-label", "Close");
+    
+                let i = document.createElement("i");
+                i.className = "bi bi-x-circle";
+    
+                closeButton.appendChild(i);
+                flashMessageDiv.appendChild(closeButton);
+                flashMessageDiv.appendChild(document.createElement("br"));
+                flashDiv.appendChild(flashMessageDiv);
+                alerts.appendChild(flashDiv);
+            }
         }
     }
 </script>
@@ -205,7 +217,7 @@
                     <div style="padding-top: 1px; display: flex; justify-content: center;">
                         Date: {{youtube_link.date_added}}
                         <!-- TODO Fix button position when in form -->
-                        <form class="redownload" action="/download" method="POST" style = "margin-left: 5px;">
+                        <form class="redownload" method="POST" style = "margin-left: 5px;">
                             <input type="hidden" name="url" value="{{youtube_link.link}}">
                             <button type="submit" title="Download Again!"
                                 style="font-size: 13px; text-align: center; padding: 0px 3px 0px 3px; border-width: 1px;">

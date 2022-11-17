@@ -269,7 +269,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str, socketid:
             return send_file(zip_bytes, download_name=f"{title}.zip", as_attachment=True)
         else:
             return None
-    
+    #if only one video needs to be downloaded
     else:
         match = fullmatch(pattern=pattern, string=url) or fullmatch(pattern=pattern2, string=url)
         if not match:
