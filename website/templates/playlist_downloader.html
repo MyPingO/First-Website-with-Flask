@@ -108,6 +108,9 @@
         let alerts = document.getElementById("alerts");
         alerts.innerHTML = "";
         for (let flashData of allAlerts) {
+            let flashDiv = document.createElement("div");
+            flashDiv.style = "margin-top: 10px";
+
             let message = flashData[0];
             let category = flashData[1];
             let alertType = category == "error" ? "alert-danger" : "alert-success";
@@ -130,7 +133,8 @@
             closeButton.appendChild(i);
             flashMessageDiv.appendChild(closeButton);
             flashMessageDiv.appendChild(document.createElement("br"));
-            alerts.appendChild(flashMessageDiv);
+            flashDiv.appendChild(flashMessageDiv);
+            alerts.appendChild(flashDiv);
         }
     }
 </script>
