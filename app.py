@@ -312,17 +312,17 @@ def downloader(url: str, user: User, start_video: str, end_video: str, socketid:
 #function for returning a videos' bytes and title from its url
 def get_video_info(video_url: str, playlist: Playlist, videos_handled: list, socketid) -> ZipFile:
     try_counter = 0
+    video = YouTube(video_url)
     while True:
         if try_counter == 3:
             #add a video_url to list in case a video could not be downloaded
             #so that the perecentages dont get messed up
             videos_handled.append(video_url)
-            socketio.emit("alert", {"message" : f"Error: Something went wrong. URL = {video_url}", "category" : "error"}, to = socketid)
+            socketio.emit("alert", {"message" : f'Error: Something went wrong while downloading <a href = "{video_url}">{video.title}</a>', "category" : "error"}, to = socketid)
             return None
         try:
             try_counter += 1
             audio_data = BytesIO()
-            video = YouTube(video_url)
             print(f"Downloading {video.title}...")
             video.streams.get_audio_only().stream_to_buffer(audio_data)
             audio_data.seek(0)
