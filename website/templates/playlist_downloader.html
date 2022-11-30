@@ -132,20 +132,18 @@
         };
         
         function reloadDownloadsList() {
-            fetch("/playlist-downloader", {
+            fetch("/downloads-list", {
                 method: "GET"
             })
             .then((response) => {
-                return response.text();
+                if (response.status = 200) return response.text();
             })
             .then((html) => {
-                console.log(html);
-                //make dom parser that parses html
-                let parser = new DOMParser();
-                let doc = parser.parseFromString(html, "text/html");
-                let downloadsList = doc.getElementById("downloadsList");
-                document.getElementById("downloadsList").innerHTML = downloadsList.innerHTML;
-                setRedownloadOnSubmit();
+                if (html) {
+                    console.log(html);
+                    document.getElementById("downloadsList").innerHTML = html;
+                    setRedownloadOnSubmit();
+                }
             });
         };
     }
@@ -237,10 +235,9 @@
                 </div>
             </li>
             {% endfor %}
+            {% endif %}
         </ul>
     </div>
 </div>
-{% endif %}
-
 
 {%endblock%}

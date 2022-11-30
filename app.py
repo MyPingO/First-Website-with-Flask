@@ -24,15 +24,17 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 socket_id_to_percentage = {}
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET"])
 def home():
     return redirect(url_for("playlist_downloader"))
 
-
-@app.route("/playlist-downloader")
+@app.route("/playlist-downloader", methods=["GET"])
 def playlist_downloader():
     return render_template("playlist_downloader.html", user=current_user)
 
+@app.route("/downloads-list", methods=["GET"])
+def downloads_list():
+    return render_template("downloads_list.html", user=current_user)
 
 @app.route("/download/<socketid>", methods=["POST"])
 def download(socketid):
