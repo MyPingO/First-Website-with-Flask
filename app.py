@@ -40,10 +40,13 @@ def downloads_list():
 def download(socketid):
     data = request.form
     print(data)
+    url = data.get("url")
     start_video = data.get("start_video")
     end_video = data.get("end_video")
-    url = data.get("url")
-    file = downloader(url=url, user=current_user, start_video=start_video, end_video=end_video, socketid=socketid)
+    ignore_list = data.get("ignore_list")
+    if ignore_list:
+        ignore_list = ignore_list.split(",")
+    file = downloader(url=url, user=current_user, start_video=start_video, end_video=end_video, ignore_list=ignore_list, socketid=socketid)
     return file or Response(status=204) #204 is "no content" status code
 
 
@@ -151,9 +154,9 @@ def sign_up():
 
 
 # TODO check for same file names
-def downloader(url: str, user: User, start_video: str, end_video: str, socketid: str):
+def downloader(url: str, user: User, start_video: str, end_video: str, ignore_list: list[str], socketid: str):
     if not url:
-        socketio.emit("alert", {"message" : "Please enter a link to a youtube video or Playlist.", "category" : "error"}, to = socketid)
+        socketio.emit("alert", {"message" : "Please enter a link to a YouTube video or Playlist.", "category" : "error"}, to = socketid)
         return None
     pattern = r"(https:\/\/www\.youtube\.com\/watch\?v=[A-Za-z0-9-_]{11}).*"
     # https://youtu.be/eleven11111
@@ -191,7 +194,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str, socketid:
                     return None
             else:
                 socketio.emit("alert", {"message" :
-                    "Cannot download playlist. Reason: Start video link is not a valid youtube link.", "category" : "error"}, to = socketid
+                    "Cannot download playlist. Reason: Start video link is not a valid YouTube link.", "category" : "error"}, to = socketid
                 )
                 return None
         if end_video:
@@ -209,7 +212,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str, socketid:
                     print(type(e))
                     return None
             else:
-                socketio.emit("alert", {"message" : "Cannot download playlist. Reason: End video link is not a valid youtube link.", "category" : "error"}, to = socketid)
+                socketio.emit("alert", {"message" : "Cannot download playlist. Reason: End video link is not a valid YouTube link.", "category" : "error"}, to = socketid)
                 return None
         if playlist_min_range > playlist_max_range:
             socketio.emit("alert", {"message" : "Cannot download playlist. Reason: Start video is after End video.", "category" : "error"}, to = socketid)
@@ -220,14 +223,11 @@ def downloader(url: str, user: User, start_video: str, end_video: str, socketid:
         byte_files_to_zip = []  # a list of [video_bytes, video_title]
         new_links: list[YoutubeLinks] = []  # links to add to database after download if authenticated
 
-
-        
-        
         # use threads to make the download faster
         # no idea if this is "memory leak safe/dangerous" but it works
         with concurrent.futures.ThreadPoolExecutor(20) as executor:
             videos_handled = []
-            for video_url in playlist:
+            for video_url in playlist and video_url not in ignore_list:
                 byte_files_to_zip.append(
                     executor.submit(get_video_info, video_url=video_url, playlist = playlist, videos_handled = videos_handled, socketid = socketid)
                 )
@@ -275,7 +275,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str, socketid:
     else:
         match = fullmatch(pattern=pattern, string=url) or fullmatch(pattern=pattern2, string=url)
         if not match:
-            socketio.emit("alert", {"message" : "Cannot download video. Reason: Invalid youtube link.", "category" : "error"}, to = socketid)
+            socketio.emit("alert", {"message" : "Cannot download video. Reason: Invalid YouTube link.", "category" : "error"}, to = socketid)
             return None
         url = match.group(1)
         print("Downloading URL")
