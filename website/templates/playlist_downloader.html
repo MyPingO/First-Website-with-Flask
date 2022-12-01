@@ -11,7 +11,7 @@
     window.onload = function () {
         const href = window.location.href;
         let fileName = undefined
-        let allAlerts = []
+        let backendAlerts = []
 
         let socketid = undefined
 
@@ -48,18 +48,17 @@
         });
 
         socket.on("alert", function (content) {
-            allAlerts.push([content.message, content.category]);
+            backendAlerts.push([content.message, content.category]);
         });
-
 
         playlistForm.onsubmit = function (event) {
             download(event)
-
-        };
+        }
 
         function download(event) {
             event.preventDefault();
             let formData = new FormData(event.target);
+            formData.append("ignore_list", ignoreList.toString());
             fetch("/download/" + socket.id, {
                 method: "POST",
                 body: formData
@@ -85,51 +84,53 @@
                     percentText.innerHTML = "";
                 }, 1000);
                 //display all flash/alert messages from backend if there are any
-                displayAlerts(allAlerts);
-                allAlerts = []
+                displayBackendAlerts(backendAlerts);
+                backendAlerts = []
             })
-        };
+        }
 
-        
-        function displayAlerts(allAlerts) {
+        function displayBackendAlerts(backendAlerts) {
             let alerts = document.getElementById("alerts");
             alerts.innerHTML = "";
-            for (let flashData of allAlerts) {
-                let flashDiv = document.createElement("div");
-                flashDiv.style = "margin-top: 10px";
-                
-                let message = flashData[0];
-                let category = flashData[1];
-                let alertType = category == "error" ? "alert-danger" : "alert-success";
-                let flashMessageDiv = document.createElement("div");
-                flashMessageDiv.className = `alert ${alertType} alter-dismissable fade show`;
-                flashMessageDiv.innerHTML = message;
-                flashMessageDiv.setAttribute("role", "alert");
-                flashMessageDiv.style = "width: 37vw; min-width: 325px; margin: auto; position: relative; padding-right: 3.25rem;";
-                
-                let closeButton = document.createElement("button");
-                closeButton.type = "button";
-                closeButton.className = "close";
-                closeButton.style = "position: absolute; right: 1rem; top: .75rem; margin-left: 10px;"
-                closeButton.setAttribute("data-dismiss", "alert");
-                closeButton.setAttribute("aria-label", "Close");
-                
-                let i = document.createElement("i");
-                i.className = "bi bi-x-circle";
-                
-                closeButton.appendChild(i);
-                flashMessageDiv.appendChild(closeButton);
-                flashMessageDiv.appendChild(document.createElement("br"));
-                flashDiv.appendChild(flashMessageDiv);
-                alerts.appendChild(flashDiv);
+            for (let flashData of backendAlerts) {
+                const alertDiv = createAlertDiv(flashData[0], flashData[1]);
+                alerts.appendChild(alertDiv);
             }
-        };
+        }
+
+        function createAlertDiv(message, category) {
+            const alertDiv = document.createElement("div");
+            alertDiv.style = "margin-bottom: 10px";
+
+            let alertType = category == "error" ? "alert-danger" : "alert-success";
+            let alertMessageDiv = document.createElement("div");
+            alertMessageDiv.className = `alert ${alertType} alter-dismissable fade show`;
+            alertMessageDiv.innerHTML = message;
+            alertMessageDiv.setAttribute("role", "alert");
+            alertMessageDiv.style = "width: 37vw; min-width: 325px; margin: auto; position: relative; padding-right: 3.25rem;";
+            
+            let closeButton = document.createElement("button");
+            closeButton.type = "button";
+            closeButton.className = "close";
+            closeButton.style = "position: absolute; right: 1rem; top: .75rem; margin-left: 10px;"
+            closeButton.setAttribute("data-dismiss", "alert");
+            closeButton.setAttribute("aria-label", "Close");
+            
+            let i = document.createElement("i");
+            i.className = "bi bi-x-circle";
+            
+            closeButton.appendChild(i);
+            alertMessageDiv.appendChild(closeButton);
+            alertMessageDiv.appendChild(document.createElement("br"));
+            alertDiv.appendChild(alertMessageDiv);
+            return alertDiv;
+        }
         
         function setRedownloadOnSubmit() {
             for (form of [...document.getElementsByClassName("redownload")]) {
                 form.onsubmit = download;
             }
-        };
+        }
         
         function reloadDownloadsList() {
             fetch("/downloads-list", {
@@ -145,7 +146,32 @@
                     setRedownloadOnSubmit();
                 }
             });
-        };
+        }
+        
+        const ignoreAddButton = document.getElementById("ignoreAddButton");
+        const ignoreInput = document.getElementById("ignoreInput");
+        const ignoreList = [];
+        const regex1 = new RegExp(String.raw`(https:\/\/www\.youtube\.com\/watch\?v=[A-Za-z0-9-_]{11}).*`);
+        const regex2 = new RegExp(String.raw`(https:\/\/youtu\.be\/[A-Za-z0-9-_]{11}).*`);
+
+        ignoreAddButton.onclick = function() {
+            if (ignoreInput.value) {
+                let input = String(ignoreInput.value).trim(); //get rid of whitespace if there are any
+                if (regex1.test(input) || regex2.test(input)) {
+                    let matchedURL = (input.match(regex1) || input.match(regex2))[1];
+                    ignoreList.push(matchedURL);
+                    ignoreInput.focus();
+                    console.log(ignoreList.toString());
+                    
+                    //using replaceChildren to refresh the div each time so the same errors don't stack up
+                    alerts.replaceChildren(createAlertDiv(`Added <a href = "${matchedURL}" target = "_blank">${matchedURL}</a> to ignore list`, "success"));
+                    ignoreInput.value = "";
+                } 
+                else alerts.replaceChildren(createAlertDiv("Cannot add video to ignore list. Reason: Invalid YouTube link", "error"));
+            }
+
+        }
+
     }
 </script>
 {%endblock%}
@@ -177,26 +203,37 @@
         </div>
     </div>
     <div>
-        <div class="rangeSettings" style="padding-top: 20px; padding-right: 20px; text-align: center;">
-            <div style="padding-left: 20px;">
+        <div style="padding-top: 20px; text-align: center;">
+            <div class = "range">
                 <label for="Ranges" style="text-align: center;">
                     <h4>Specify Range (Inclusive)</h4>
                 </label>
             </div>
-            <ul class="rangeSettings"
-                style="list-style:none; display: flex; flex-wrap: wrap; justify-content: center; padding-right: 20px">
-                <li class="rangeListItem" style="min-width: 325px; width: 23vw; max-width: 25vw;">
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1vw;">
+                <div class="rangeOption">
                     <!--TODO: change min width according to screensize of mobile device-->
                     <div style="white-space: nowrap; text-align: center;">Start from playlist video (URL):</div>
                     <input class="form-control" type="text" name="start_video"
                         placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center;">
-                </li>
-                <li class="rangeListItem" style="min-width: 325px; width: 23vw; max-width: 25vw;">
+                </div>
+                <div class="rangeOption">
                     <div style="white-space: nowrap; text-align: center;">End at playlist video (URL):</div>
                     <input class="form-control" type="text" name="end_video"
                         placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center;">
-                </li>
-            </ul>
+                </div>
+                <div>
+                    <div>
+                        <div class = "rangeOption">
+                            <div style="white-space: nowrap; text-align: center;">Ignore videos (URL):</div>
+                            <input class="form-control" type="text" id = "ignoreInput"
+                                placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center; margin-right: 1vw; position: relative;">
+                            <button class = "btn btn-outline-success" id = "ignoreAddButton" type = "button" style="height: 40px; margin-top: 10px;">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </form>

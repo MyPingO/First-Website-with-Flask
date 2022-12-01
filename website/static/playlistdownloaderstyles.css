@@ -10,9 +10,6 @@
     min-width: 325px;
     width: 37vw;
 }
-.dummy {
-    padding-left: 0;
-}
 .form-control.playlistInput {
     padding-right: max(80px, 10%);
 }
@@ -32,6 +29,7 @@
 .progress-bar{
     background-color: gray;
 }
-.rangeListItem {
-    margin-right: 1vw;
+.rangeOption {
+    min-width: 325px;
+    width: 23vw;
 }
