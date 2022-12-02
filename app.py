@@ -65,11 +65,6 @@ def disconnect():
         print(f"Map: {socket_id_to_percentage}")
 
 
-@socketio.on("message")
-def handle_percent_change(message):
-    pass
-
-
 # set up the socketid to percentage dictionary for this user
 @socketio.on("socket id")
 def join(id):
@@ -225,22 +220,23 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
 
         # use threads to make the download faster
         # no idea if this is "memory leak safe/dangerous" but it works
-        with concurrent.futures.ThreadPoolExecutor(20) as executor:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
             videos_handled = []
-            for video_url in playlist and video_url not in ignore_list:
-                byte_files_to_zip.append(
-                    executor.submit(get_video_info, video_url=video_url, playlist = playlist, videos_handled = videos_handled, socketid = socketid)
-                )
-                video = YouTube(video_url)
-                new_links.append(
-                    YoutubeLinks(
-                        link=video_url,
-                        user_id = None if not user.is_authenticated else user.id,
-                        title=video.title,
-                        date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"),
-                        thumbnail_link=video.thumbnail_url,
+            for video_url in playlist:
+                if video_url not in ignore_list:
+                    byte_files_to_zip.append(
+                        executor.submit(get_video_info, video_url=video_url, playlist = playlist, videos_handled = videos_handled, socketid = socketid)
                     )
-                )
+                    video = YouTube(video_url)
+                    new_links.append(
+                        YoutubeLinks(
+                            link=video_url,
+                            user_id = None if not user.is_authenticated else user.id,
+                            title=video.title,
+                            date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"),
+                            thumbnail_link=video.thumbnail_url,
+                        )
+                    )
         #The previous with statement should close once all workers/threads are done
         #so now we can add all the files to the zip file
         with ZipFile(zip_bytes, "w") as zip:
@@ -316,6 +312,7 @@ def get_video_info(video_url: str, playlist: Playlist, videos_handled: list, soc
     try_counter = 0
     video = YouTube(video_url)
     while True:
+        # sometimes theres some error that doesn't allow a video to be downloaded properly, happens rarely so I let it try 3 times before flashing an error
         if try_counter == 3:
             #add a video_url to list in case a video could not be downloaded
             #so that the perecentages dont get messed up
