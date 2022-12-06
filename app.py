@@ -237,6 +237,10 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
                             thumbnail_link=video.thumbnail_url,
                         )
                     )
+                else:
+                    #if a video_url is skipped, still add it to videos_handled
+                    #so that the perecentages dont get messed up
+                    videos_handled.append(video_url)
         #The previous with statement should close once all workers/threads are done
         #so now we can add all the files to the zip file
         with ZipFile(zip_bytes, "w") as zip:
