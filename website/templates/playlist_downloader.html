@@ -59,6 +59,7 @@
             event.preventDefault();
             let formData = new FormData(event.target);
             formData.append("ignore_list", ignoreList.toString());
+            const ignoreListWasEmpty = ignoreList.length == 0;
             ignoreList = [];
             fetch("/download/" + socket.id, {
                 method: "POST",
@@ -74,6 +75,8 @@
                     a.download = fileName;
                     a.click();
                     fileName = undefined;
+                    if (ignoreListWasEmpty) alerts.replaceChildren(createAlertDiv("Download complete!", "success"));
+                    else alerts.replaceChildren(createAlertDiv("Download complete! Ignore list was reset.", "success"));
                     //reload html for previous downloads list
                     reloadDownloadsList();
                 }
@@ -91,11 +94,13 @@
         }
 
         function displayBackendAlerts(backendAlerts) {
-            let alerts = document.getElementById("alerts");
-            alerts.innerHTML = "";
-            for (let flashData of backendAlerts) {
-                const alertDiv = createAlertDiv(flashData[0], flashData[1]);
-                alerts.appendChild(alertDiv);
+            if (backendAlerts.length != 0) {
+                let alerts = document.getElementById("alerts");
+                alerts.innerHTML = "";
+                for (let flashData of backendAlerts) {
+                    const alertDiv = createAlertDiv(flashData[0], flashData[1]);
+                    alerts.appendChild(alertDiv);
+                }
             }
         }
 
