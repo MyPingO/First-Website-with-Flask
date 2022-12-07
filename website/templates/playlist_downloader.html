@@ -156,7 +156,10 @@
         
         const ignoreAddButton = document.getElementById("ignoreAddButton");
         const ignoreInput = document.getElementById("ignoreInput");
+        const ignoreDataList = document.getElementById("ignoreDataList");
+
         let ignoreList = [];
+
         const regex1 = new RegExp(String.raw`(https:\/\/www\.youtube\.com\/watch\?v=[A-Za-z0-9-_]{11}).*`);
         const regex2 = new RegExp(String.raw`(https:\/\/youtu\.be\/[A-Za-z0-9-_]{11}).*`);
 
@@ -172,6 +175,7 @@
                     }
 
                     ignoreList.push(matchedURL);
+                    ignoreDataList.innerHTML += `<option value="${matchedURL}">`;
                     ignoreInput.focus();
                     
                     //using replaceChildren to refresh the div each time so the same errors don't stack up
@@ -179,6 +183,31 @@
                     ignoreInput.value = "";
                 } 
                 else alerts.replaceChildren(createAlertDiv("Cannot add video to ignore list. Reason: Invalid YouTube link", "error"));
+            }
+        }
+
+        const ignoreDeleteButton = document.getElementById("ignoreDeleteButton");
+        
+        ignoreDeleteButton.onclick = function() {
+            if (ignoreInput.value) {
+                let input = String(ignoreInput.value).trim(); //get rid of whitespace if there are any
+                if (regex1.test(input) || regex2.test(input)) {
+                    let matchedURL = (input.match(regex1) || input.match(regex2))[1];
+
+                    if (!ignoreList.includes(matchedURL)) {
+                        alerts.replaceChildren(createAlertDiv("Cannot remove video from ignore list. Reason: Video is not in the ignore list", "error"));
+                        return;
+                    }
+
+                    ignoreList.splice(ignoreList.indexOf(matchedURL), 1);
+                    ignoreDataList.innerHTML = ignoreDataList.innerHTML.replace(`<option value="${matchedURL}">`, "");
+                    ignoreInput.focus();
+                    
+                    //using replaceChildren to refresh the div each time so the same errors don't stack up
+                    alerts.replaceChildren(createAlertDiv(`Removed <a href = "${matchedURL}" target = "_blank">${matchedURL}</a> from ignore list`, "success"));
+                    ignoreInput.value = "";
+                } 
+                else alerts.replaceChildren(createAlertDiv("Cannot remove video from ignore list. Reason: Invalid YouTube link", "error"));
             }
         }
     }
@@ -234,8 +263,13 @@
                     <div>
                         <div class = "rangeOption">
                             <div style="white-space: nowrap; text-align: center;">Ignore videos (URL):</div>
-                            <input class="form-control" type="text" id = "ignoreInput" onkeydown="return (event.keyCode!=13);" 
-                                placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center; margin-right: 1vw; position: relative;">
+                            <input class="form-control" type="text" list = "ignoreDataList" id = "ignoreInput" onkeydown="return (event.keyCode!=13);" 
+                            placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center; margin-right: 1vw; position: relative;">
+                            <datalist id = "ignoreDataList">
+                            </datalist>
+                            <button class = "btn btn-outline-danger" id = "ignoreDeleteButton" type = "button" style="height: 40px; margin-top: 10px; margin-right: 3vw;">
+                                <i class="bi bi-dash-lg"></i>
+                            </button>
                             <button class = "btn btn-outline-success" id = "ignoreAddButton" type = "button" style="height: 40px; margin-top: 10px;">
                                 <i class="bi bi-plus-lg"></i>
                             </button>
