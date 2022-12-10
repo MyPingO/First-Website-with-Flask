@@ -10,6 +10,7 @@
 <script type="text/javascript">
     window.onload = function () {
         const href = window.location.href;
+        let downloadInProgress = false;
         let fileName = undefined
         let backendAlerts = []
 
@@ -22,7 +23,7 @@
         const playlistInput = document.getElementById("playlistInput");
         playlistInput.focus();
 
-        setRedownloadOnSubmit();
+        setButtonOnClicks();
 
         socket.on("connect", function () {
             console.log("Connected to server");
@@ -59,8 +60,9 @@
             event.preventDefault();
             let formData = new FormData(event.target);
             formData.append("ignore_list", ignoreList.toString());
-            const ignoreListWasEmpty = ignoreList.length == 0;
+            const ignoreListWasEmpty = (ignoreList.length == 0);
             ignoreList = [];
+            downloadInProgress = true;
             fetch("/download/" + socket.id, {
                 method: "POST",
                 body: formData
@@ -75,6 +77,7 @@
                     a.download = fileName;
                     a.click();
                     fileName = undefined;
+                    downloadInProgress = false;
                     if (ignoreListWasEmpty) alerts.replaceChildren(createAlertDiv("Download complete!", "success"));
                     else alerts.replaceChildren(createAlertDiv("Download complete! Ignore list was reset.", "success"));
                     //reload html for previous downloads list
@@ -132,10 +135,12 @@
             return alertDiv;
         }
         
-        function setRedownloadOnSubmit() {
+        function setButtonOnClicks() {
             for (form of [...document.getElementsByClassName("redownload")]) {
                 form.onsubmit = download;
             }
+            const clearHistoryButton = document.getElementById("clearHistoryButton");
+            if (clearHistoryButton) clearHistoryButton.onclick = confirmHistoryClear;
         }
         
         function reloadDownloadsList() {
@@ -148,13 +153,14 @@
             .then((html) => {
                 if (html) {
                     console.log(html);
-                    document.getElementById("downloadsList").innerHTML = html;
-                    setRedownloadOnSubmit();
+                    document.getElementById("previousDownloadsList").innerHTML = html;
+                    setButtonOnClicks();
                 }
+                else document.getElementById("previousDownloadsList").innerHTML = "";
             });
         }
         
-        const ignoreAddButton = document.getElementById("ignoreAddButton");
+        const ignoreListAddButton = document.getElementById("ignoreListAddButton");
         const ignoreInput = document.getElementById("ignoreInput");
         const ignoreListData = document.getElementById("ignoreListData");
 
@@ -163,7 +169,7 @@
         const regex1 = new RegExp(String.raw`(https:\/\/www\.youtube\.com\/watch\?v=[A-Za-z0-9-_]{11}).*`);
         const regex2 = new RegExp(String.raw`(https:\/\/youtu\.be\/[A-Za-z0-9-_]{11}).*`);
 
-        ignoreAddButton.onclick = function() {
+        ignoreListAddButton.onclick = function() {
             if (ignoreInput.value) {
                 let input = String(ignoreInput.value).trim(); //get rid of whitespace if there are any
                 if (regex1.test(input) || regex2.test(input)) {
@@ -196,7 +202,6 @@
                     removeButton.onclick = function() {
                         ignoreList.splice(ignoreList.indexOf(matchedURL), 1);
                         ignoreListItem.remove();
-                        alerts.replaceChildren(createAlertDiv(`Removed video from ignore list`, "success"));
                     }
 
                     //append the button to the list item
@@ -204,14 +209,31 @@
 
                     //append the list item to the list
                     ignoreListData.appendChild(ignoreListItem);
+
+                    //clear the input field
                     ignoreInput.focus();
-                    
-                    //using replaceChildren to refresh the div each time so the same errors don't stack up
-                    alerts.replaceChildren(createAlertDiv(`Added <a href = "${matchedURL}" target = "_blank">${matchedURL}</a> to ignore list`, "success"));
                     ignoreInput.value = "";
                 } 
                 else alerts.replaceChildren(createAlertDiv("Cannot add video to ignore list. Reason: Invalid YouTube link", "error"));
+            }            
+        }
+
+        function confirmHistoryClear() {
+            if (downloadInProgress) {
+                alerts.replaceChildren(createAlertDiv("Cannot clear history. Reason: Download in progress", "error"));
+                return;
             }
+            if (confirm("Are you sure you want to clear your history?\nYou won't be able to get it back!")) clearHistory();
+        }
+
+        function clearHistory() {
+            fetch("/clear-history", {
+                method: "POST"
+            })
+            .then((response) => {
+                reloadDownloadsList();
+                if (response.status != 200) alerts.replaceChildren(createAlertDiv("Cannot clear history. Reason: Unknown error (You're probably signed out!)", "error"));
+            });
         }
     }
 </script>
@@ -268,7 +290,7 @@
                             <div style="white-space: nowrap; text-align: center;">Ignore videos (URL):</div>
                             <input class="form-control" type="text" id = "ignoreInput" onkeydown="return (event.keyCode!=13);" 
                             placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center;">
-                            <button class = "btn btn-outline-success" id = "ignoreAddButton" type = "button" style="height: 40px; margin-top: 10px;">
+                            <button class = "btn btn-outline-success" id = "ignoreListAddButton" type = "button" style="height: 40px; margin-top: 10px;">
                                 <i class="bi bi-plus-lg"></i>
                             </button>
                             <ul class = "list-group" id = ignoreListData style="max-height: 175px; overflow: auto; list-style: none; margin-top: 10px;">
