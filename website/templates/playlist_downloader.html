@@ -79,7 +79,10 @@
                     fileName = undefined;
                     downloadInProgress = false;
                     if (ignoreListWasEmpty) alerts.replaceChildren(createAlertDiv("Download complete!", "success"));
-                    else alerts.replaceChildren(createAlertDiv("Download complete! Ignore list was reset.", "success"));
+                    else {
+                        alerts.replaceChildren(createAlertDiv("Download complete! Ignore list was reset.", "success"));
+                        ignoreListData.innerHTML = "";
+                    }
                     //reload html for previous downloads list
                     reloadDownloadsList();
                 }
