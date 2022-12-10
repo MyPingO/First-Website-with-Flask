@@ -28,13 +28,16 @@ socket_id_to_percentage = {}
 def home():
     return redirect(url_for("playlist_downloader"))
 
+
 @app.route("/playlist-downloader", methods=["GET"])
 def playlist_downloader():
     return render_template("playlist_downloader.html", user=current_user)
 
+
 @app.route("/downloads-list", methods=["GET"])
 def downloads_list():
     return render_template("downloads_list.html", user=current_user)
+
 
 @app.route("/download/<socketid>", methods=["POST"])
 def download(socketid):
@@ -94,6 +97,20 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for("login"))
+
+
+@app.route("/clear-history", methods=["POST"])
+def clear_history():
+    try:
+        links = YoutubeLinks.query.filter_by(user_id=current_user.id).all()
+        for link in links:
+            db.session.delete(link)
+        db.session.commit()
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+        return Response(status=500)
+    return Response(status=200)
 
 
 def check_sign_up_details(email, username, password, confirm_password) -> bool:
