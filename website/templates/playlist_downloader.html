@@ -86,7 +86,6 @@
                     a.download = fileName;
                     a.click();
                     fileName = undefined;
-                    downloadInProgress = false;
                     if (ignoreListWasEmpty) alerts.replaceChildren(createAlertDiv("Download complete!", "success"));
                     else {
                         alerts.replaceChildren(createAlertDiv("Download complete! Ignore list was reset.", "success"));
@@ -95,6 +94,7 @@
                     //reload html for previous downloads list
                     loadDownloadsList();
                 }
+                downloadInProgress = false;
             })
             .then(() => {
                 //set progress bar back to 0% after 1 second
