@@ -92,6 +92,7 @@
                 setTimeout(function () {
                     progressBar.style.width = "0%";
                     percentText.innerHTML = "";
+                    playlistForm.reset();
                 }, 1000);
                 //display all flash/alert messages from backend if there are any
                 displayBackendAlerts(backendAlerts);
