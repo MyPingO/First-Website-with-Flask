@@ -57,6 +57,11 @@
         }
 
         function download(event) {
+            if (downloadInProgress) {
+                event.preventDefault();
+                alerts.replaceChildren(createAlertDiv("Cannot download. Reason: A download is in progress!", "error"));
+                return;
+            }
             event.preventDefault();
             downloadInProgress = true;
             let formData = new FormData(event.target);
