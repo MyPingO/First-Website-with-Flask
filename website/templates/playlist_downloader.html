@@ -53,7 +53,11 @@
         });
 
         playlistForm.onsubmit = function (event) {
-            download(event)
+            if (document.activeElement.id == "ignoreListInput"){
+                event.preventDefault();
+                return;
+            }
+            download(event);
         }
 
         function download(event) {
@@ -161,7 +165,6 @@
             })
             .then((html) => {
                 if (html) {
-                    console.log(html);
                     document.getElementById("previousDownloadsList").innerHTML = html;
                     setButtonOnClicks();
                 }
@@ -170,7 +173,7 @@
         }
         
         const ignoreListAddButton = document.getElementById("ignoreListAddButton");
-        const ignoreInput = document.getElementById("ignoreInput");
+        const ignoreListInput = document.getElementById("ignoreListInput");
         const ignoreListData = document.getElementById("ignoreListData");
 
         let ignoreList = [];
@@ -178,9 +181,16 @@
         const regex1 = new RegExp(String.raw`(https:\/\/www\.youtube\.com\/watch\?v=[A-Za-z0-9-_]{11}).*`);
         const regex2 = new RegExp(String.raw`(https:\/\/youtu\.be\/[A-Za-z0-9-_]{11}).*`);
 
-        ignoreListAddButton.onclick = function() {
-            if (ignoreInput.value) {
-                let input = String(ignoreInput.value).trim(); //get rid of whitespace if there are any
+        ignoreListInput.onkeydown = function(event) {
+            if (event.key == "Enter") {
+                addToIgnoreList();
+            }
+        }
+        ignoreListAddButton.onclick = addToIgnoreList;
+
+        function addToIgnoreList() {
+            if (ignoreListInput.value) {
+                let input = String(ignoreListInput.value).trim(); //get rid of whitespace if there are any
                 if (regex1.test(input) || regex2.test(input)) {
                     let matchedURL = (input.match(regex1) || input.match(regex2))[1];
 
@@ -220,11 +230,11 @@
                     ignoreListData.appendChild(ignoreListItem);
 
                     //clear the input field
-                    ignoreInput.focus();
-                    ignoreInput.value = "";
+                    ignoreListInput.focus();
+                    ignoreListInput.value = "";
                 } 
                 else alerts.replaceChildren(createAlertDiv("Cannot add video to ignore list. Reason: Invalid YouTube link", "error"));
-            }            
+            }          
         }
 
         function confirmHistoryClear() {
@@ -254,7 +264,7 @@
     
 </div>
 
-<form action="/download" id="playlistForm" method="POST">
+<form id="playlistForm" method="POST">
     <div class="formGroup">
         <label for="ytplaylist">
             <span style="width: 37vw; font-size: calc(.65rem + 2vw);">Enter YouTube Playlist/Video Link Here</span>
@@ -297,7 +307,7 @@
                     <div>
                         <div class = "rangeOption">
                             <div style="white-space: nowrap; text-align: center;">Ignore videos (URL):</div>
-                            <input class="form-control" type="text" id = "ignoreInput" onkeydown="return (event.keyCode!=13);" 
+                            <input class="form-control" type="text" id = "ignoreListInput" 
                             placeholder="https://www.youtube.com/watch?v=example123" style="text-align:center;">
                             <button class = "btn btn-outline-success" id = "ignoreListAddButton" type = "button" style="height: 40px; margin-top: 10px;">
                                 <i class="bi bi-plus-lg"></i>
