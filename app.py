@@ -251,7 +251,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
                             user_id = None if not user.is_authenticated else user.id,
                             title=video.title,
                             date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"),
-                            thumbnail_link=video.thumbnail_url,
+                            thumbnail_link=f"https://img.youtube.com/vi/{video.video_id}/mqdefault.jpg",
                         )
                     )
                 else:
@@ -305,7 +305,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
             try:
                 try_counter += 1
                 audio_data = BytesIO()
-                video = YouTube(url)
+                video = YouTube(url).video_id
                 print(f"Getting video information for {video.title}")
                 video.streams.get_audio_only().stream_to_buffer(audio_data)
                 audio_data.seek(0)
@@ -315,7 +315,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
                         user_id=user.id,
                         title=video.title,
                         date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"),
-                        thumbnail_link=video.thumbnail_url,
+                        thumbnail_link=f"https://img.youtube.com/vi/{video.video_id}/mqdefault.jpg",
                     )
                     db.session.add(new_link)
                     db.session.commit()

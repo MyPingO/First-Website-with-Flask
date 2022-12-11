@@ -4,14 +4,15 @@
             <h4>Previous Downloads</h4>
             <button class = "btn btn-outline-secondary btn-sm" type = "button" id = "clearHistoryButton" style="position: absolute; right: 1.5rem;">
                 <i class="bi bi-trash"></i>
+                Clear
             </button>
         </div>
         <div class="downloadsListDiv">
-            <ul class="list-group downloadsList" id="downloadsList" style="height: 485px; overflow-y: auto;">
+            <ul class="list-group downloadsList" id="downloadsList" style="height: 50vh; overflow-y: auto;">
                 {% for youtube_link in user.links|reverse %}
                 <li class="list-group-item" style="background-color: rgb(243, 243, 243);">
                     <div style="text-align: center;">
-                        <strong>{{youtube_link.title}}</strong> <br>
+                        <strong style="font-size: .9rem;">{{youtube_link.title}}</strong> <br>
                         <a href="{{ youtube_link.link }}" target="_blank">
                             {{ youtube_link.link }}
                         </a>
@@ -30,7 +31,7 @@
                         {% if youtube_link.thumbnail_link %}
                         <a href="{{ youtube_link.thumbnail_link }}" target="_blank" title="Video Thumbnail">
                             <img class="thumbnail" src="{{ youtube_link.thumbnail_link }}" alt="Video Thumbnail"
-                                style="width: 70%; margin-top: 10px;">
+                                style="width: 320px; margin-top: 10px;">
                         </a>
                         {% endif %}
                     </div>
