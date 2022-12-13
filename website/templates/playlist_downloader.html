@@ -105,18 +105,18 @@
                 }, 1000);
                 //display all flash/alert messages from backend if there are any
                 displayBackendAlerts(backendAlerts);
-                backendAlerts = []
             })
         }
 
-        function displayBackendAlerts(backendAlerts) {
-            if (backendAlerts.length != 0) {
+        function displayBackendAlerts(alertsToDisplay) {
+            if (alertsToDisplay.length != 0) {
                 let alerts = document.getElementById("alerts");
                 alerts.innerHTML = "";
-                for (let flashData of backendAlerts) {
-                    const alertDiv = createAlertDiv(flashData[0], flashData[1]);
+                for (let alertData of alertsToDisplay) {
+                    const alertDiv = createAlertDiv(alertData[0], alertData[1]);
                     alerts.appendChild(alertDiv);
                 }
+                backendAlerts = []
             }
         }
 
