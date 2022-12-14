@@ -305,7 +305,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
             try:
                 try_counter += 1
                 audio_data = BytesIO()
-                video = YouTube(url).video_id
+                video = YouTube(url)
                 print(f"Getting video information for {video.title}")
                 video.streams.get_audio_only().stream_to_buffer(audio_data)
                 audio_data.seek(0)
