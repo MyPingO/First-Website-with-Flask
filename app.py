@@ -113,6 +113,19 @@ def clear_history():
         return Response(status=500)
     return Response(status=200)
 
+@app.route("/delete-from-history", methods=["POST"])
+def delete_from_history():
+    data = request.form
+    id = data.get("id")
+    try:
+        link = YoutubeLinks.query.filter_by(id=id).first()
+        db.session.delete(link)
+        db.session.commit()
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+        return Response(status=500)
+    return Response(status=200)
 
 def check_sign_up_details(email, username, password, confirm_password) -> bool:
     if email and username and password and confirm_password:
