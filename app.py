@@ -297,6 +297,11 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
         url = match.group(1)
         print("Downloading URL")
         try_counter = 0
+        video = YouTube(url)
+        #check if video is age restricted and if it is send an error message to the client
+        if video.age_restricted:
+            socketio.emit("alert", {"message" : f'Error: Cannot download <a href = "{video_url}">{video.title}</a> because it is age restricted.', "category" : "error"}, to = socketid)
+            return None
         while True:
             # sometimes theres some error that doesn't allow a video to be downloaded properly, happens rarely so I let it try 3 times before flashing an error
             if try_counter == 3:
@@ -305,7 +310,6 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
             try:
                 try_counter += 1
                 audio_data = BytesIO()
-                video = YouTube(url)
                 print(f"Getting video information for {video.title}")
                 video.streams.get_audio_only().stream_to_buffer(audio_data)
                 audio_data.seek(0)
@@ -332,6 +336,11 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
 def get_video_info(video_url: str, playlist: Playlist, videos_handled: list, socketid) -> ZipFile:
     try_counter = 0
     video = YouTube(video_url)
+    #check if video is age restricted and if it is send an error message to the client
+    if video.age_restricted:
+        videos_handled.append(video_url)
+        socketio.emit("alert", {"message" : f'Error: Cannot download <a href = "{video_url}">{video.title}</a> because it is age restricted.', "category" : "error"}, to = socketid)
+        return None
     while True:
         # sometimes theres some error that doesn't allow a video to be downloaded properly, happens rarely so I let it try 3 times before flashing an error
         if try_counter == 3:
