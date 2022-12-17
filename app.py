@@ -176,8 +176,9 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
     pattern2 = r"(https:\/\/youtu\.be\/[A-Za-z0-9-_]{11}).*"
     if "/playlist?list=" in url:
         playlist = Playlist(url)
+        playlist_title = ""
         try:
-            title = playlist.title  # tests to see if the playlist has a title
+            playlist_title = playlist.title  # tests to see if the playlist has a title
         except KeyError as ke:
             socketio.emit("alert", {"message" : "Cannot download playlist. Reason: Invalid playlist link.", "category" : "error"}, to = socketid)
             return None
@@ -250,7 +251,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
                         YoutubeLinks(
                             link=video_url,
                             user_id = None if not user.is_authenticated else user.id,
-                            title=video.title,
+                            title=replace_invalid_filename_chars(video.title),
                             date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"),
                             thumbnail_link=f"https://img.youtube.com/vi/{video.video_id}/mqdefault.jpg",
                         )
@@ -283,6 +284,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
                 print(e)
                 db.session.rollback()
                 traceback.print_exc()
+        title = replace_invalid_filename_chars(playlist_title)
         socketio.emit("file name", f"{title}.zip", to=socketid) #send the file name to the client/frontend
         #check if zip_bytes is empty
         if zip_bytes.getbuffer().nbytes != 0:
@@ -322,11 +324,17 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
                         date_added=datetime.now().strftime("%b %d %Y %#I:%M %p"),
                         thumbnail_link=f"https://img.youtube.com/vi/{video.video_id}/mqdefault.jpg",
                     )
-                    db.session.add(new_link)
-                    db.session.commit()
+                    try:
+                        db.session.add(new_link)
+                        db.session.commit()
+                    except Exception as e:
+                        print(e)
+                        db.session.rollback()
+                        traceback.print_exc()
                 print("Download is complete!")
-                socketio.emit("file name", f"{video.title}.mp3", to=socketid) #send the file name to the client/frontend
-                return send_file(audio_data, as_attachment=True, download_name=f"{video.title}.mp3")
+                title = replace_invalid_filename_chars(video.title)
+                socketio.emit("file name", f"{title}.mp3", to=socketid) #send the file name to the client/frontend
+                return send_file(audio_data, as_attachment=True, download_name=f"{title}.mp3")
             except Exception as e:
                 print(e)
                 db.session.rollback()
@@ -360,10 +368,11 @@ def get_video_info(video_url: str, playlist: Playlist, videos_handled: list, soc
             percentage = round(len(videos_handled) / len(playlist) * 100, 2)
             socketio.emit("zip update", percentage, to=socketid)
 
-            return [audio_data, video.title + str(".mp3")]
+            return [audio_data, replace_invalid_filename_chars(video.title) + str(".mp3")]
         except Exception as e:
             print(e)
             traceback.print_exc()
+
 def convert_to_mp3(audio_data: BytesIO) -> BytesIO:
     audio_data.seek(0)
     try:
@@ -374,6 +383,11 @@ def convert_to_mp3(audio_data: BytesIO) -> BytesIO:
         print(e)
         traceback.print_exc();    
     return audio_data
+
+#function that takes in a string representing a filename and replaces all invalid characters with an underscore
+def replace_invalid_filename_chars(filename: str) -> str:
+    return "".join([char if char.isalnum() or char in "._- " else "_" for char in filename])
+
 
 if __name__ == "__main__":
     socketio.run(app=app, debug=True, host="0.0.0.0", port=25565)
