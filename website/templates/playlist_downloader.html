@@ -63,7 +63,7 @@
         function download(event) {
             if (downloadInProgress) {
                 event.preventDefault();
-                alerts.replaceChildren(createAlertDiv("Cannot download. Reason: A download is in progress!", "error"));
+                alerts.replaceChildren(createAlertDiv("Cannot download. Reason: A download is in progress!", "danger"));
                 return;
             }
             event.preventDefault();
@@ -86,9 +86,8 @@
                     a.download = fileName;
                     a.click();
                     fileName = undefined;
-                    if (ignoreListWasEmpty) alerts.replaceChildren(createAlertDiv("Download complete!", "success"));
-                    else {
-                        alerts.replaceChildren(createAlertDiv("Download complete! Ignore list was reset.", "success"));
+                    if (!ignoreListWasEmpty) {
+                        alerts.replaceChildren(createAlertDiv("Ignore list was reset.", "primary"));
                         ignoreListData.innerHTML = "";
                     }
                     //reload html for previous downloads list
@@ -124,7 +123,7 @@
             const alertDiv = document.createElement("div");
             alertDiv.style = "margin-bottom: 10px";
 
-            let alertType = category == "error" ? "alert-danger" : "alert-success";
+            let alertType = `alert-${category}`;
             let alertMessageDiv = document.createElement("div");
             alertMessageDiv.className = `alert ${alertType} alter-dismissable fade show`;
             alertMessageDiv.innerHTML = message;
@@ -198,7 +197,7 @@
                     let matchedURL = (input.match(regex1) || input.match(regex2))[1];
 
                     if (ignoreList.includes(matchedURL)) {
-                        alerts.replaceChildren(createAlertDiv("Cannot add video to ignore list. Reason: Video is already in the ignore list", "error"));
+                        alerts.replaceChildren(createAlertDiv("Cannot add video to ignore list. Reason: Video is already in the ignore list", "danger"));
                         return;
                     }
 
@@ -209,7 +208,7 @@
                     ignoreListItem.className = "list-group-item";
                     ignoreListItem.value = matchedURL;
                     ignoreListItem.innerHTML = `<a href = ${matchedURL}> ${matchedURL} </a>`;
-                    ignoreListItem.style = "display: flex; font-size: .95rem; justify-content: space-between; align-items: center;";
+                    ignoreListItem.style = "display: flex; font-size: max(.75rem, .80vw); justify-content: space-between; align-items: center;";
 
                     //add a button to the list item to remove it from the ignore list
                     const removeButton = document.createElement("button");
@@ -236,14 +235,14 @@
                     ignoreListInput.focus();
                     ignoreListInput.value = "";
                 } 
-                else alerts.replaceChildren(createAlertDiv("Cannot add video to ignore list. Reason: Invalid YouTube link", "error"));
+                else alerts.replaceChildren(createAlertDiv("Cannot add video to ignore list. Reason: Invalid YouTube link", "danger"));
             }          
         }
 
 
         function confirmHistoryClear() {
             if (downloadInProgress) {
-                alerts.replaceChildren(createAlertDiv("Cannot clear history. Reason: Download in progress", "error"));
+                alerts.replaceChildren(createAlertDiv("Cannot clear history. Reason: Download in progress", "danger"));
                 return;
             }
             if (confirm("Are you sure you want to clear your history?\nYou won't be able to get it back!")) clearHistory();
@@ -255,14 +254,14 @@
             })
             .then((response) => {
                 loadDownloadsList();
-                if (response.status != 200) alerts.replaceChildren(createAlertDiv("Cannot clear history. Reason: Unknown error (You're probably signed out!)", "error"));
+                if (response.status != 200) alerts.replaceChildren(createAlertDiv("Cannot clear history. Reason: Unknown error (You're probably signed out!)", "danger"));
             });
         }
 
 
         function confirmDeleteFromHistory(event) {
             if (downloadInProgress) {
-                alerts.replaceChildren(createAlertDiv("Cannot delete from history. Reason: Download in progress", "error"));
+                alerts.replaceChildren(createAlertDiv("Cannot delete from history. Reason: Download in progress", "danger"));
                 return;
             }
             if (confirm("Are you sure you want to delete this download from your history?\nYou won't be able to get it back!")) deleteFromHistory(event);
@@ -279,7 +278,7 @@
                 //delete the download from the list
                 //event.target is the form, the parentElement of the form is the list item
                 event.target.parentElement.remove();
-                if (response.status != 200) alerts.replaceChildren(createAlertDiv("Cannot delete from history. Reason: Unknown error (You're probably signed out!)", "error"));
+                if (response.status != 200) alerts.replaceChildren(createAlertDiv("Cannot delete from history. Reason: Unknown error (You're probably signed out!)", "danger"));
             });
         }
     }

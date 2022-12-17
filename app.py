@@ -182,7 +182,7 @@ def sign_up():
 # TODO check for same file names
 def downloader(url: str, user: User, start_video: str, end_video: str, ignore_list: list[str], socketid: str):
     if not url:
-        socketio.emit("alert", {"message" : "Please enter a link to a YouTube video or Playlist.", "category" : "error"}, to = socketid)
+        socketio.emit("alert", {"message" : "Please enter a link to a YouTube video or Playlist.", "category" : "danger"}, to = socketid)
         return None
     pattern = r"(https:\/\/www\.youtube\.com\/watch\?v=[A-Za-z0-9-_]{11}).*"
     # https://youtu.be/eleven11111
@@ -193,14 +193,14 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
         try:
             playlist_title = playlist.title  # tests to see if the playlist has a title
         except KeyError as ke:
-            socketio.emit("alert", {"message" : "Cannot download playlist. Reason: Invalid playlist link.", "category" : "error"}, to = socketid)
+            socketio.emit("alert", {"message" : "Cannot download playlist. Reason: Invalid playlist link.", "category" : "danger"}, to = socketid)
             return None
         except Exception as e:
-            socketio.emit("alert", {"message" : "Cannot download playlist. Reason: Unknown error.", "category" : "error"}, to = socketid)
+            socketio.emit("alert", {"message" : "Cannot download playlist. Reason: Unknown error.", "category" : "danger"}, to = socketid)
             print(type(e))
             return None
         if len(playlist.video_urls) == 0:
-            socketio.emit("alert", {"message" : "Cannot download playlist. Reason: Playlist is empty.", "category" : "error"}, to = socketid)
+            socketio.emit("alert", {"message" : "Cannot download playlist. Reason: Playlist is empty.", "category" : "danger"}, to = socketid)
             return None
         playlist_min_range = 0
         playlist_max_range = len(playlist.video_urls)
@@ -212,16 +212,16 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
                     playlist_min_range = playlist.index(start_video)
                     # TODO 'https://www.youtube.com/watch?v=fsP8ByqNVOE&list=PLpq1vrb8z_YcqqsLsf6W1YZXhibS7bPSA&index=1' invalid link
                 except ValueError as ve:
-                    socketio.emit("alert", {"message" : "Cannot download playlist. Reason: Start video link is not in playlist.", "category" : "error"}, to = socketid)
+                    socketio.emit("alert", {"message" : "Cannot download playlist. Reason: Start video link is not in playlist.", "category" : "danger"}, to = socketid)
                     print(ve)
                     return None
                 except Exception as e:
-                    socketio.emit("alert", {"message" : "Cannot download playlist. Reason: Unknown error.", "category" : "error"}, to = socketid)
+                    socketio.emit("alert", {"message" : "Cannot download playlist. Reason: Unknown error.", "category" : "danger"}, to = socketid)
                     print(type(e))
                     return None
             else:
                 socketio.emit("alert", {"message" :
-                    "Cannot download playlist. Reason: Start video link is not a valid YouTube link.", "category" : "error"}, to = socketid
+                    "Cannot download playlist. Reason: Start video link is not a valid YouTube link.", "category" : "danger"}, to = socketid
                 )
                 return None
         if end_video:
@@ -231,18 +231,18 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
                     end_video = match.group(1)
                     playlist_max_range = playlist.index(end_video) + 1
                 except ValueError as ve:
-                    socketio.emit("alert", {"message" : "Cannot download playlist. Reason: End video link is not in playlist.", "category" : "error"}, to = socketid)
+                    socketio.emit("alert", {"message" : "Cannot download playlist. Reason: End video link is not in playlist.", "category" : "danger"}, to = socketid)
                     print(ve)
                     return None
                 except Exception as e:
-                    socketio.emit("alert", {"message" : "Cannot download playlist. Reason: Unknown error.", "category" : "error"}, to = socketid)
+                    socketio.emit("alert", {"message" : "Cannot download playlist. Reason: Unknown error.", "category" : "danger"}, to = socketid)
                     print(type(e))
                     return None
             else:
-                socketio.emit("alert", {"message" : "Cannot download playlist. Reason: End video link is not a valid YouTube link.", "category" : "error"}, to = socketid)
+                socketio.emit("alert", {"message" : "Cannot download playlist. Reason: End video link is not a valid YouTube link.", "category" : "danger"}, to = socketid)
                 return None
         if playlist_min_range > playlist_max_range:
-            socketio.emit("alert", {"message" : "Cannot download playlist. Reason: Start video is after End video.", "category" : "error"}, to = socketid)
+            socketio.emit("alert", {"message" : "Cannot download playlist. Reason: Start video is after End video.", "category" : "danger"}, to = socketid)
             return None
         playlist = playlist[playlist_min_range:playlist_max_range]
 
@@ -308,7 +308,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
     else:
         match = fullmatch(pattern=pattern, string=url) or fullmatch(pattern=pattern2, string=url)
         if not match:
-            socketio.emit("alert", {"message" : "Cannot download video. Reason: Invalid YouTube link.", "category" : "error"}, to = socketid)
+            socketio.emit("alert", {"message" : "Cannot download video. Reason: Invalid YouTube link.", "category" : "danger"}, to = socketid)
             return None
         url = match.group(1)
         print("Downloading URL")
@@ -316,12 +316,12 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
         video = YouTube(url)
         #check if video is age restricted and if it is send an error message to the client
         if video.age_restricted:
-            socketio.emit("alert", {"message" : f'Error: Cannot download <a href = "{video_url}">{video.title}</a> because it is age restricted.', "category" : "error"}, to = socketid)
+            socketio.emit("alert", {"message" : f'Error: Cannot download <a href = "{video_url}">{video.title}</a> because it is age restricted.', "category" : "danger"}, to = socketid)
             return None
         while True:
             # sometimes theres some error that doesn't allow a video to be downloaded properly, happens rarely so I let it try 3 times before flashing an error
             if try_counter == 3:
-                socketio.emit("alert", {"message" : "Something went wrong, please try again!", "category" : "error"}, to = socketid)
+                socketio.emit("alert", {"message" : "Something went wrong, please try again!", "category" : "danger"}, to = socketid)
                 return None
             try:
                 try_counter += 1
@@ -361,7 +361,7 @@ def get_video_info(video_url: str, playlist: Playlist, videos_handled: list, soc
     #check if video is age restricted and if it is send an error message to the client
     if video.age_restricted:
         videos_handled.append(video_url)
-        socketio.emit("alert", {"message" : f'Error: Cannot download <a href = "{video_url}">{video.title}</a> because it is age restricted.', "category" : "error"}, to = socketid)
+        socketio.emit("alert", {"message" : f'Error: Cannot download <a href = "{video_url}">{video.title}</a> because it is age restricted.', "category" : "danger"}, to = socketid)
         return None
     while True:
         # sometimes theres some error that doesn't allow a video to be downloaded properly, happens rarely so I let it try 3 times before flashing an error
@@ -369,7 +369,7 @@ def get_video_info(video_url: str, playlist: Playlist, videos_handled: list, soc
             #add a video_url to list in case a video could not be downloaded
             #so that the perecentages dont get messed up
             videos_handled.append(video_url)
-            socketio.emit("alert", {"message" : f'Error: Something went wrong while downloading <a href = "{video_url}">{video.title}</a>', "category" : "error"}, to = socketid)
+            socketio.emit("alert", {"message" : f'Error: Something went wrong while downloading <a href = "{video_url}">{video.title}</a>', "category" : "danger"}, to = socketid)
             return None
         try:
             try_counter += 1
