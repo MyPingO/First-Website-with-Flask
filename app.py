@@ -15,6 +15,7 @@ from io import BytesIO
 from re import fullmatch
 import traceback
 
+from pydub import AudioSegment
 
 app = create_app()
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -312,7 +313,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
                 audio_data = BytesIO()
                 print(f"Getting video information for {video.title}")
                 video.streams.get_audio_only().stream_to_buffer(audio_data)
-                audio_data.seek(0)
+                audio_data = convert_to_mp3(audio_data)
                 if user.is_authenticated:
                     new_link = YoutubeLinks(
                         link=url,
@@ -354,8 +355,7 @@ def get_video_info(video_url: str, playlist: Playlist, videos_handled: list, soc
             audio_data = BytesIO()
             print(f"Downloading {video.title}...")
             video.streams.get_audio_only().stream_to_buffer(audio_data)
-            audio_data.seek(0)
-
+            audio_data = convert_to_mp3(audio_data)
             videos_handled.append(video_url)
             percentage = round(len(videos_handled) / len(playlist) * 100, 2)
             socketio.emit("zip update", percentage, to=socketid)
@@ -364,5 +364,16 @@ def get_video_info(video_url: str, playlist: Playlist, videos_handled: list, soc
         except Exception as e:
             print(e)
             traceback.print_exc()
+def convert_to_mp3(audio_data: BytesIO) -> BytesIO:
+    audio_data.seek(0)
+    try:
+        segment = AudioSegment.from_file(audio_data, format="mp4")
+        audio_data.flush
+        segment.export(out_f=audio_data, format="mp3", bitrate="192k")
+    except Exception as e:
+        print(e)
+        traceback.print_exc();    
+    return audio_data
+
 if __name__ == "__main__":
     socketio.run(app=app, debug=True, host="0.0.0.0", port=25565)
