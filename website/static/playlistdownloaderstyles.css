@@ -7,7 +7,7 @@
     justify-content: center;
 }
 .playlistForm {
-    min-width: 325px;
+    min-width: 250px;
     width: 37vw;
 }
 .form-control.playlistInput {
@@ -21,7 +21,7 @@
 }
 .progress.download{
     background-color: gray;
-    min-width: 325px;
+    min-width: 250px;
     margin: auto;
     margin-top: 1%;
     width: 37vw;
@@ -30,7 +30,7 @@
     background-color: gray;
 }
 .rangeOption {
-    min-width: 325px;
+    min-width: 250px;
     width: 23vw;
 }
 .previousDownloadsList {
