@@ -60,13 +60,20 @@
             download(event);
         }
 
+        const searchButton = document.getElementById("searchButton");
         function download(event) {
+            event.preventDefault();
             if (downloadInProgress) {
                 event.preventDefault();
                 alerts.replaceChildren(createAlertDiv("Cannot download. Reason: A download is in progress!", "danger"));
                 return;
             }
-            event.preventDefault();
+            if (!regex1.test(playlistInput.value) && !regex2.test(playlistInput.value)) {
+                alerts.replaceChildren(createAlertDiv("Cannot download video. Reason: Invalid YouTube link.", "danger"));
+                return;
+            }
+            searchButton.disabled = true;
+            searchButton.innerHTML = `<div class="spinner-border spinner-border-sm" role="status"></div>`
             downloadInProgress = true;
             const formData = new FormData(event.target);
             formData.append("ignore_list", ignoreList.toString());
@@ -94,6 +101,8 @@
                     loadDownloadsList();
                 }
                 downloadInProgress = false;
+                searchButton.disabled = false;
+                searchButton.innerHTML = "Search";
             })
             .then(() => {
                 //set progress bar back to 0% after 1 second
@@ -292,16 +301,19 @@
 </div>
 
 <form id="playlistForm" method="POST">
-    <div class="formGroup">
-        <label for="ytplaylist">
-            <span style="width: 37vw; font-size: calc(.65rem + 2vw);">Enter YouTube Playlist/Video Link Here</span>
-        </label>
-        <div class="inputs">
-            <div class="formInput position-relative playlistForm">
-                <input class="form-control playlistInput" id="playlistInput" type="text" class="form-control"
-                    name="url">
-                <button class="btn btn-primary btn-sm position-absolute searchButton" type="submit"
-                    value="Search">Search</button>
+        <div class="formGroup">
+            <label for="ytplaylist">
+                <span style="width: 37vw; font-size: calc(.65rem + 2vw);">Enter YouTube Playlist/Video Link Here</span>
+            </label>
+            <div class="inputs">
+                <div class="formInput position-relative playlistForm">
+                    <input class="form-control playlistInput" id="playlistInput" type="text" class="form-control"
+                        name="url">
+                    <button class="btn btn-primary btn-sm position-absolute searchButton" id = "searchButton" type="submit"
+                        value="Search">Search
+                    </button>
+                    
+                </div>
             </div>
         </div>
     </div>
