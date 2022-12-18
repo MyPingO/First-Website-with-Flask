@@ -60,6 +60,7 @@
             download(event);
         }
 
+        const regexAll = new RegExp(String.raw`(https:\/\/|http:\/\/)?(www.youtube.com|youtube.com|youtu.be)\/(playlist\?list=([A-Za-z0-9-_]{34})|watch\?v=([A-Za-z0-9-_]{11})|([A-Za-z0-9-_]{11}))`);
         const searchButton = document.getElementById("searchButton");
         function download(event) {
             event.preventDefault();
@@ -68,7 +69,7 @@
                 alerts.replaceChildren(createAlertDiv("Cannot download. Reason: A download is in progress!", "danger"));
                 return;
             }
-            if (!regex1.test(playlistInput.value) && !regex2.test(playlistInput.value)) {
+            if (!regexAll.test(playlistInput.value)) {
                 alerts.replaceChildren(createAlertDiv("Cannot download video. Reason: Invalid YouTube link.", "danger"));
                 return;
             }
@@ -137,7 +138,7 @@
             alertMessageDiv.className = `alert ${alertType} alter-dismissable fade show`;
             alertMessageDiv.innerHTML = message;
             alertMessageDiv.setAttribute("role", "alert");
-            alertMessageDiv.style = "width: 37vw; min-width: 325px; margin: auto; position: relative; padding-right: 3.25rem;";
+            alertMessageDiv.style = "width: 50vw; min-width: 325px; margin: auto; position: relative; padding-right: 3.25rem;";
             
             let closeButton = document.createElement("button");
             closeButton.type = "button";
@@ -204,7 +205,6 @@
                 let input = String(ignoreListInput.value).trim(); //get rid of whitespace if there are any
                 if (regex1.test(input) || regex2.test(input)) {
                     let matchedURL = (input.match(regex1) || input.match(regex2))[1];
-
                     if (ignoreList.includes(matchedURL)) {
                         alerts.replaceChildren(createAlertDiv("Cannot add video to ignore list. Reason: Video is already in the ignore list", "danger"));
                         return;
