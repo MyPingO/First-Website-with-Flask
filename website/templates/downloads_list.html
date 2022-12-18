@@ -1,14 +1,14 @@
 {% if user.links %}
-    <div style = "width: fit-content; position: relative;">
-        <div style = "display: flex; justify-content: center;">
-            <h4>Previous Downloads</h4>
-            <button class = "btn btn-outline-secondary btn-sm" type = "button" id = "clearHistoryButton" style="position: absolute; right: 1.5rem;">
-                <i class="bi bi-trash"></i>
-                Clear
+    <div style = "width: fit-content;">
+        <div style = "display: flex; justify-content: center; position: relative;">
+            <h4 class = "previousDownloads"> Previous Downloads</h4>
+            <button class = "btn btn-outline-secondary btn-sm clearHistory" type = "button" id = "clearHistoryButton" style="position: absolute; right: 2.1rem;">
+                <i class="bi bi-trash clearHistoryIcon"></i>
+                <span class = "clearHistoryText">Clear</span>
             </button>
         </div>
         <div class="downloadsListDiv">
-            <ul class="list-group downloadsList" id="downloadsList" style="height: 50vh; overflow-y: auto;">
+            <ul class="list-group downloadsList" id="downloadsList" style="height: 50vh; overflow-y: scroll;">
                 {% for youtube_link in user.links|reverse %}
                 <li class="list-group-item" style="background-color: rgb(243, 243, 243);">
                     <div style="text-align: center; position: relative; margin-left: .75rem; margin-right: 2rem;">

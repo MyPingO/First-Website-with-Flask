@@ -17,7 +17,7 @@
     min-width: 65px;
     width: 10%;
     right: .25rem;
-    top: .2rem;
+    top: .15rem;
 }
 .progress.download{
     background-color: gray;
@@ -33,6 +33,20 @@
     min-width: 320px;
     width: 23vw;
 }
+
+@media only screen and (max-width: 450px) {
+    .previousDownloads {
+        font-size: 1.25rem;
+    }
+    .clearHistory {
+        right: 1.1rem !important;
+    }
+}
+@media only screen and (max-width: 400px) {
+    .clearHistoryText {
+        display: none;
+    }
+}
 @media only screen and (max-width: 320px) {
     .rangeOption {
         min-width: 275px;
@@ -47,7 +61,13 @@
 @media only screen and (max-width: 300px) {
     .rangeOption {
         min-width: 225px;
-    } 
+    }
+    .playlistForm {
+        min-width: 225px;
+    }
+    .progress.download {
+        min-width: 225px;
+    }
 }
 .previousDownloadsList {
     padding-left: 0.5vw;
