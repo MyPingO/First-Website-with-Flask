@@ -21,7 +21,6 @@ app = create_app()
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 #currently does nothing and is useless
-#TODO make this keep track of whether a user is downloading something or not
 socket_id_to_percentage = {}
 
 
@@ -179,7 +178,6 @@ def sign_up():
     )
 
 
-# TODO check for same file names
 def downloader(url: str, user: User, start_video: str, end_video: str, ignore_list: list[str], socketid: str):
     if not url:
         socketio.emit("alert", {"message" : "Please enter a link to a YouTube video or Playlist.", "category" : "danger"}, to = socketid)
@@ -210,7 +208,6 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
                 try:
                     start_video = match.group(1)
                     playlist_min_range = playlist.index(start_video)
-                    # TODO 'https://www.youtube.com/watch?v=fsP8ByqNVOE&list=PLpq1vrb8z_YcqqsLsf6W1YZXhibS7bPSA&index=1' invalid link
                 except ValueError as ve:
                     socketio.emit("alert", {"message" : "Cannot download playlist. Reason: Start video link is not in playlist.", "category" : "danger"}, to = socketid)
                     print(ve)
@@ -282,7 +279,7 @@ def downloader(url: str, user: User, start_video: str, end_video: str, ignore_li
                     zip.writestr(
                         zinfo_or_arcname=byte_file.result()[1],
                         data=byte_file.result()[0].read(),
-                        compress_type=zipfile.ZIP_DEFLATED, #TODO check if this is the best compression type
+                        compress_type=zipfile.ZIP_DEFLATED,
                     )
                 except Exception as e:
                     continue

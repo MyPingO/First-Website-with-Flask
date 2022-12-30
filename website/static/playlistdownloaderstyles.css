@@ -1,3 +1,15 @@
+.alerts {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    flex-flow: row wrap;
+    gap: 10px;
+}
+/* ↓ Everything related to the main input ↓ */
+.mainLabelText {
+    width: 37vw;
+    font-size: calc(.65rem + 2vw);
+}
 .formGroup {
     text-align: center;
     padding-top: 1vw;
@@ -25,17 +37,107 @@
     margin: auto;
     margin-top: 1%;
     width: 50vw;
+    text-align: center;
 }
-.progress-bar{
-    background-color: gray;
+.progress-bar {
+    width: 0%;
+}
+/* ↓ Everything related to the range options ↓ */
+.rangesParent {
+    padding-top: 20px;
+    text-align: center;
+}
+.rangeOptionsParent {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1vw;
 }
 .rangeOption {
     min-width: 320px;
     width: 23vw;
 }
-
+.rangeOptionText {
+    white-space: nowrap;
+    text-align: center;
+}
+.rangeOptionInput {
+    text-align: center;
+}
+.ignoreListAddButton {
+    height: 40px;
+    margin-top: 10px;
+}
+.ignoreList {
+    max-height: 175px;
+    overflow: auto;
+    list-style: none;
+    margin-top: 10px;
+}
+/* ↓ Previous Downloads List and related ↓ */
+.previousDownloadsParent {
+    width: fit-content;
+    margin: auto;
+}
+.previousDownloadsMainText {
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+.clearHistoryButton {
+    position: absolute;
+    right: 2.1rem;
+}
+/* .previousDownloadsList {
+    padding-left: 0.5vw;
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+} */
+.previousDownloadsList {
+    height: 50vh;
+    overflow-y: scroll;
+}
+.previousDownloadListItem {
+    background-color: rgb(243, 243, 243);
+}
+.previousDownloadDetails {
+    text-align: center;
+    position: relative;
+    margin-left: .75rem;
+    margin-right: 2rem;
+}
+.previousDownloadTitle {
+    font-size: .9rem;
+}
+.previousDownloadDate {
+    padding-top: 1px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.redownload {
+    margin-left: 5px;
+}
+.downloadAgainButton {
+    font-size: 13px;
+    text-align: center;
+    padding: 0px 3px 0px 3px;
+    border-width: 1px;
+}
+.previousDownloadThumbnail {
+    width: 85%;
+    margin-top: 10px;
+}
+.deleteFromHistoryButton {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+}
+/* ↓ Media Queries ↓ */
 @media only screen and (max-width: 450px) {
-    .previousDownloads {
+    .previousDownloadsHeader {
         font-size: 1.25rem;
     }
     .clearHistory {
@@ -68,19 +170,4 @@
     .progress.download {
         min-width: 225px;
     }
-}
-.previousDownloadsList {
-    padding-left: 0.5vw;
-    padding-top: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.alerts {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    flex-flow: row wrap;
-    gap: 10px;
-
 }
