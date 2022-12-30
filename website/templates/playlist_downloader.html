@@ -60,7 +60,7 @@
             download(event);
         }
 
-        const regexAll = new RegExp(String.raw`(https:\/\/|http:\/\/)?(www.youtube.com|youtube.com|youtu.be)\/(playlist\?list=([A-Za-z0-9-_]{34})|watch\?v=([A-Za-z0-9-_]{11})|([A-Za-z0-9-_]{11}))`);
+        const regexAll = new RegExp(/(https?:\/\/)?(www\.)?(youtube\.com\/((playlist\?list=[A-Za-z0-9-_]{34})|(watch\?v=[A-Za-z0-9-_]{11}))|(youtu\.be\/([A-Za-z0-9-_]{11})))(\?.*)?/);
         const searchButton = document.getElementById("searchButton");
         function download(event) {
             event.preventDefault();
