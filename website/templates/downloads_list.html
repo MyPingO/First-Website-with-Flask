@@ -1,5 +1,5 @@
 {% if user.links %}
-<div class="previousDownloadsParent">
+<div class="previousDownloadsParent" id = "previousDownloadsParent">
     <div class="previousDownloadsMainText">
         <h4 class="previousDownloadsHeader">Previous Downloads</h4>
         <button class="btn btn-outline-secondary btn-sm clearHistoryButton" type="button" id="clearHistoryButton">
@@ -7,10 +7,10 @@
             <span class="clearHistoryText">Clear</span>
         </button>
     </div>
-    <div class="downloadsListDiv">
-        <ul class="list-group previousDownloadsList" id="downloadsList">
+    <div class="previousDownloadsListDiv">
+        <ul class="list-group previousDownloadsList" id="previousDownloadsList">
             {% for youtube_link in user.links|reverse %}
-            <li class="list-group-item previousDownloadListItem">
+            <li class="list-group-item previousDownloadListItem" id = "previousDownloadListItem">
                 <div class="previousDownloadDetails">
                     <strong class="previousDownloadTitle">{{youtube_link.title}}</strong> <br>
                     <a href="{{ youtube_link.link }}" target="_blank">
