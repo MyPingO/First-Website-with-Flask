@@ -84,37 +84,37 @@
                 method: "POST",
                 body: formData
             })
-                .then((response) => {
-                    return response.blob();
-                })
-                .then((data) => {
-                    if (fileName != undefined) {
-                        let a = document.createElement("a");
-                        a.href = window.URL.createObjectURL(data);
-                        a.download = fileName;
-                        a.click();
-                        fileName = undefined;
-                        if (!ignoreListWasEmpty) {
-                            alerts.replaceChildren(createAlertDiv("Ignore list was reset.", "primary"));
-                            ignoreList.innerHTML = "";
-                        }
-                        //reload html for previous downloads list
-                        loadDownloadsList();
+            .then((response) => {
+                return response.blob();
+            })
+            .then((data) => {
+                if (fileName != undefined) {
+                    let a = document.createElement("a");
+                    a.href = window.URL.createObjectURL(data);
+                    a.download = fileName;
+                    a.click();
+                    fileName = undefined;
+                    if (!ignoreListWasEmpty) {
+                        alerts.replaceChildren(createAlertDiv("Ignore list was reset.", "primary"));
+                        ignoreList.innerHTML = "";
                     }
-                    downloadInProgress = false;
-                    searchButton.disabled = false;
-                    searchButton.innerHTML = "Search";
-                })
-                .then(() => {
-                    //set progress bar back to 0% after 1 second
-                    setTimeout(function () {
-                        progressBar.style.width = "0%";
-                        percentText.innerHTML = "";
-                        playlistForm.reset();
-                    }, 1000);
-                    //display all flash/alert messages from backend if there are any
-                    displayBackendAlerts(backendAlerts);
-                })
+                    //reload html for previous downloads list
+                    loadDownloadsList();
+                }
+                downloadInProgress = false;
+                searchButton.disabled = false;
+                searchButton.innerHTML = "Search";
+            })
+            .then(() => {
+                //set progress bar back to 0% after 1 second
+                setTimeout(function () {
+                    progressBar.style.width = "0%";
+                    percentText.innerHTML = "";
+                    playlistForm.reset();
+                }, 1000);
+                //display all flash/alert messages from backend if there are any
+                displayBackendAlerts(backendAlerts);
+            })
         }
 
         function displayBackendAlerts(alertsToDisplay) {
@@ -151,7 +151,6 @@
 
             closeButton.appendChild(i);
             alertMessageDiv.appendChild(closeButton);
-            //alertMessageDiv.appendChild(document.createElement("br"));
             alertDiv.appendChild(alertMessageDiv);
             return alertDiv;
         }
@@ -171,16 +170,16 @@
             fetch("/downloads-list", {
                 method: "GET"
             })
-                .then((response) => {
-                    if (response.status = 200) return response.text();
-                })
-                .then((html) => {
-                    if (html) {
-                        document.getElementById("previousDownloads").innerHTML = html;
-                        setButtonOnClicks();
-                    }
-                    else document.getElementById("previousDownloads").innerHTML = "";
-                });
+            .then((response) => {
+                if (response.status = 200) return response.text();
+            })
+            .then((html) => {
+                if (html) {
+                    document.getElementById("previousDownloads").innerHTML = html;
+                    setButtonOnClicks();
+                }
+                else document.getElementById("previousDownloads").innerHTML = "";
+            });
         }
 
         const ignoreListAddButton = document.getElementById("ignoreListAddButton");
@@ -260,10 +259,10 @@
             fetch("/clear-history", {
                 method: "POST"
             })
-                .then((response) => {
-                    loadDownloadsList();
-                    if (response.status != 200) alerts.replaceChildren(createAlertDiv("Cannot clear history. Reason: Unknown error (You're probably signed out!)", "danger"));
-                });
+            .then((response) => {
+                loadDownloadsList();
+                if (response.status != 200) alerts.replaceChildren(createAlertDiv("Cannot clear history. Reason: Unknown error (You're probably signed out!)", "danger"));
+            });
         }
 
 
@@ -285,12 +284,16 @@
                 method: "POST",
                 body: formData
             })
-                .then((response) => {
-                    //delete the download from the list
-                    //event.target is the form, the parentElement of the form is the list item
+            .then((response) => {
+                //delete the download from the list
+                //event.target is the form, the parentElement of the form is the list item
+                if (response.status != 200) alerts.replaceChildren(createAlertDiv("Cannot delete from history. Reason: Unknown error (You're probably signed out!)", "danger"));
+                else  {
                     event.target.parentElement.remove();
-                    if (response.status != 200) alerts.replaceChildren(createAlertDiv("Cannot delete from history. Reason: Unknown error (You're probably signed out!)", "danger"));
-                });
+                    console.log(document.getElementById("previousDownloadsList").children.length);
+                    if (document.getElementById("previousDownloadsList").children.length == 0) document.getElementById("previousDownloadsParent").innerHTML = "";
+                }
+            });
         }
     }
 </script>
