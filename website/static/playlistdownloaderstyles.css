@@ -91,7 +91,7 @@
 }
 .previousDownloadsList {
     height: 50vh;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 .previousDownloadListItem {
     background-color: rgb(243, 243, 243);
