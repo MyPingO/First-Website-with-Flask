@@ -57,19 +57,35 @@
                 event.preventDefault();
                 return;
             }
-            download(event);
+            download(event, playlistInput.value);
+        }
+
+        function setButtonOnClicks() {
+            for (form of [...document.getElementsByClassName("redownload")]) {
+                form.onsubmit = function(event) {
+                    event.preventDefault();
+                    let link = event.currentTarget[0].value;
+                    download(event, link);
+                }
+            }
+            for (form of [...document.getElementsByClassName("deleteHistory")]) {
+                form.onsubmit = confirmDeleteFromHistory;
+            }
+            const clearHistoryButton = document.getElementById("clearHistoryButton");
+            if (clearHistoryButton) clearHistoryButton.onclick = confirmHistoryClear;
         }
 
         const regexAll = new RegExp(/(https?:\/\/)?(www\.)?(youtube\.com\/((playlist\?list=[A-Za-z0-9-_]{34})|(watch\?v=[A-Za-z0-9-_]{11}))|(youtu\.be\/([A-Za-z0-9-_]{11})))(\?.*)?/);
         const searchButton = document.getElementById("searchButton");
-        function download(event) {
+        function download(event, link) {
             event.preventDefault();
+            if (!link) return;
             if (downloadInProgress) {
                 event.preventDefault();
                 alerts.replaceChildren(createAlertDiv("Cannot download. Reason: A download is in progress!", "danger"));
                 return;
             }
-            if (!regexAll.test(playlistInput.value)) {
+            if (!regexAll.test(link)) {
                 alerts.replaceChildren(createAlertDiv("Cannot download video. Reason: Invalid YouTube link.", "danger"));
                 return;
             }
@@ -155,16 +171,6 @@
             return alertDiv;
         }
 
-        function setButtonOnClicks() {
-            for (form of [...document.getElementsByClassName("redownload")]) {
-                form.onsubmit = download;
-            }
-            for (form of [...document.getElementsByClassName("deleteHistory")]) {
-                form.onsubmit = confirmDeleteFromHistory;
-            }
-            const clearHistoryButton = document.getElementById("clearHistoryButton");
-            if (clearHistoryButton) clearHistoryButton.onclick = confirmHistoryClear;
-        }
 
         function loadDownloadsList() {
             fetch("/downloads-list", {
