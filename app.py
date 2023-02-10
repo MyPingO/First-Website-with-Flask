@@ -23,7 +23,6 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 #currently does nothing and is useless
 socket_id_to_percentage = {}
 
-
 @app.route("/", methods=["GET"])
 def home():
     return redirect(url_for("playlist_downloader"))
