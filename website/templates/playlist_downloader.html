@@ -62,7 +62,7 @@
 
         function setButtonOnClicks() {
             for (form of [...document.getElementsByClassName("redownload")]) {
-                form.onsubmit = function(event) {
+                form.onsubmit = function (event) {
                     event.preventDefault();
                     let link = event.currentTarget[0].value;
                     download(event, link);
@@ -100,37 +100,37 @@
                 method: "POST",
                 body: formData
             })
-            .then((response) => {
-                return response.blob();
-            })
-            .then((data) => {
-                if (fileName != undefined) {
-                    let a = document.createElement("a");
-                    a.href = window.URL.createObjectURL(data);
-                    a.download = fileName;
-                    a.click();
-                    fileName = undefined;
-                    if (!ignoreListWasEmpty) {
-                        alerts.replaceChildren(createAlertDiv("Ignore list was reset.", "primary"));
-                        ignoreList.innerHTML = "";
+                .then((response) => {
+                    return response.blob();
+                })
+                .then((data) => {
+                    if (fileName != undefined) {
+                        let a = document.createElement("a");
+                        a.href = window.URL.createObjectURL(data);
+                        a.download = fileName;
+                        a.click();
+                        fileName = undefined;
+                        if (!ignoreListWasEmpty) {
+                            alerts.replaceChildren(createAlertDiv("Ignore list was reset.", "primary"));
+                            ignoreList.innerHTML = "";
+                        }
+                        //reload html for previous downloads list
+                        loadDownloadsList();
                     }
-                    //reload html for previous downloads list
-                    loadDownloadsList();
-                }
-                downloadInProgress = false;
-                searchButton.disabled = false;
-                searchButton.innerHTML = "Search";
-            })
-            .then(() => {
-                //set progress bar back to 0% after 1 second
-                setTimeout(function () {
-                    progressBar.style.width = "0%";
-                    percentText.innerHTML = "";
-                    playlistForm.reset();
-                }, 1000);
-                //display all flash/alert messages from backend if there are any
-                displayBackendAlerts(backendAlerts);
-            })
+                    downloadInProgress = false;
+                    searchButton.disabled = false;
+                    searchButton.innerHTML = "Search";
+                })
+                .then(() => {
+                    //set progress bar back to 0% after 1 second
+                    setTimeout(function () {
+                        progressBar.style.width = "0%";
+                        percentText.innerHTML = "";
+                        playlistForm.reset();
+                    }, 1000);
+                    //display all flash/alert messages from backend if there are any
+                    displayBackendAlerts(backendAlerts);
+                })
         }
 
         function displayBackendAlerts(alertsToDisplay) {
@@ -176,16 +176,16 @@
             fetch("/downloads-list", {
                 method: "GET"
             })
-            .then((response) => {
-                if (response.status = 200) return response.text();
-            })
-            .then((html) => {
-                if (html) {
-                    document.getElementById("previousDownloads").innerHTML = html;
-                    setButtonOnClicks();
-                }
-                else document.getElementById("previousDownloads").innerHTML = "";
-            });
+                .then((response) => {
+                    if (response.status = 200) return response.text();
+                })
+                .then((html) => {
+                    if (html) {
+                        document.getElementById("previousDownloads").innerHTML = html;
+                        setButtonOnClicks();
+                    }
+                    else document.getElementById("previousDownloads").innerHTML = "";
+                });
         }
 
         const ignoreListAddButton = document.getElementById("ignoreListAddButton");
@@ -265,10 +265,10 @@
             fetch("/clear-history", {
                 method: "POST"
             })
-            .then((response) => {
-                loadDownloadsList();
-                if (response.status != 200) alerts.replaceChildren(createAlertDiv("Cannot clear history. Reason: Unknown error (You're probably signed out!)", "danger"));
-            });
+                .then((response) => {
+                    loadDownloadsList();
+                    if (response.status != 200) alerts.replaceChildren(createAlertDiv("Cannot clear history. Reason: Unknown error (You're probably signed out!)", "danger"));
+                });
         }
 
 
@@ -290,16 +290,16 @@
                 method: "POST",
                 body: formData
             })
-            .then((response) => {
-                //delete the download from the list
-                //event.target is the form, the parentElement of the form is the list item
-                if (response.status != 200) alerts.replaceChildren(createAlertDiv("Cannot delete from history. Reason: Unknown error (You're probably signed out!)", "danger"));
-                else  {
-                    event.target.parentElement.remove();
-                    console.log(document.getElementById("previousDownloadsList").children.length);
-                    if (document.getElementById("previousDownloadsList").children.length == 0) document.getElementById("previousDownloadsParent").innerHTML = "";
-                }
-            });
+                .then((response) => {
+                    //delete the download from the list
+                    //event.target is the form, the parentElement of the form is the list item
+                    if (response.status != 200) alerts.replaceChildren(createAlertDiv("Cannot delete from history. Reason: Unknown error (You're probably signed out!)", "danger"));
+                    else {
+                        event.target.parentElement.remove();
+                        console.log(document.getElementById("previousDownloadsList").children.length);
+                        if (document.getElementById("previousDownloadsList").children.length == 0) document.getElementById("previousDownloadsParent").innerHTML = "";
+                    }
+                });
         }
     }
 </script>
@@ -318,12 +318,10 @@
         </label>
         <div class="inputs">
             <div class="formInput position-relative playlistForm">
-                <input class="form-control playlistInput" id="playlistInput" type="text" class="form-control"
-                    name="url">
+                <input class="form-control playlistInput" id="playlistInput" type="text" name="url">
                 <button class="btn btn-primary btn-sm position-absolute searchButton" id="searchButton" type="submit"
                     value="Search">Search
                 </button>
-
             </div>
         </div>
     </div>
